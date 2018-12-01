@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{% block title%}Pyatka{% endblock %}</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1" /> 
+</head>
+<body>
+	{% csrf_token %}
+
+	{% if form.errors %}
+		<p class='error'>Ошибка аутентификации.</p>
+	{% endif %}
+
+	{% if next %}
+		{% if user.is_authenticated %}
+			<p>У вас нет доступа к этой странице.</p>
+		{% else %}
+			<p>Войдите, чтобы просмотреть эту страницу.</p>
+		{% endif %}
+	{% endif %}
+
+	<form method="post" action="{% url 'login' %}">
+		{% csrf_token %}
+		<table>
+			<tr>
+				<td>{{ form.username.label_tag }}</td>
+				<td>{{ form.username }}</td>
+			</tr>
+			<tr>
+				<td>{{ form.password.label_tag }}</td>
+				<td>{{ form.password }}</td>
+			</tr>
+		</table>
+
+		<input type="submit" value="login">
+		<input type="hidden" name="next" value="{{ next }}">
+	</form>
+</body>
+</html>

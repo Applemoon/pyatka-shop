@@ -1,0 +1,49 @@
+#app {
+	margin: 20px;
+	font-size: 17px;
+}
+
+tr {
+	height: 51px;
+}
+
+.milk {
+}
+
+.meat {
+	background-color: #f2dede;
+	color: #a53835;
+}
+
+.fruits {
+	background-color: #e5f3e0;
+	color: #3c763d;
+}
+
+.vegetables {
+	background-color: #f1faff;
+	color: #255a73;
+}
+
+.cereals {
+	background-color: #fcf8e3;
+	color: #6d552c;
+}
+
+.spices {
+	background-color: #f2e7fb;
+	color: #553173;
+}
+
+.other {
+	background-color: #e4e4e4;
+}
+
+.bought {
+	text-decoration: line-through;
+	color: grey;
+}
+
+table {
+	width: 100%;
+}
