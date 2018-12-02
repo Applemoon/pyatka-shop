@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Table } from 'react-bootstrap';
 
-import Item from './item.jsx';
+import Item from './Item.jsx';
 
 const TableComponent = ({ items, mode, toggleStarred, toggleBought, toggleNeeded, remove, rename }) =>
 	!items.length ? (

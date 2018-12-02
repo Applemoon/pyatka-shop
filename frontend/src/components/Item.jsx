@@ -49,7 +49,7 @@ class Item extends PureComponent {
 					<td
 						style={{ verticalAlign: 'middle', paddingLeft: '20px' }}
 						onClick={mode === 1 ? () => toggleNeeded(id) : () => toggleBought(id)}>
-						<span> {needed ? <strong>🛒 {name}</strong> : name} </span>
+						<span> {needed && mode === 1 ? <strong>✅ {name}</strong> : name} </span>
 					</td>
 				) : (
 					<td style={{ verticalAlign: 'middle' }} colSpan={this.state.editing ? 2 : 1}>
