@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Form, FormGroup, InputGroup, FormControl, ControlLabel } from 'react-bootstrap';
+import { Button, Form, FormGroup, InputGroup, FormControl, ControlLabel, Glyphicon } from 'react-bootstrap';
 
 class Item extends PureComponent {
 	state = {
@@ -24,7 +24,6 @@ class Item extends PureComponent {
 	};
 
 	translateCategory = () => {
-		// return this.props.categories[category];  todo если категории - массив
 		const { categories, category } = this.props;
 		const translate = categories.find(el => el.key === category);
 		if (translate) return translate.value;
@@ -74,7 +73,14 @@ class Item extends PureComponent {
 					<td
 						style={{ verticalAlign: 'middle', paddingLeft: '20px' }}
 						onClick={mode === 1 ? () => toggleNeeded(id) : () => toggleBought(id)}>
-						<span> {needed && mode === 1 ? <strong>✅ {name}</strong> : name} </span>
+						{needed && mode === 1 ? (
+							<span>
+								<Glyphicon glyph="shopping-cart" /> <strong>{name}</strong>{' '}
+								<Glyphicon glyph="shopping-cart" />
+							</span>
+						) : (
+							name
+						)}
 					</td>
 				) : (
 					<td style={{ verticalAlign: 'middle' }} colSpan={this.state.editing ? 2 : 1}>
