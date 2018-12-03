@@ -30,7 +30,7 @@ const mapStateToProps = state => ({
 	error: state.error,
 	mode: state.mode,
 	offline: state.offline,
-	loading: state.loading
+	loading: state.loading,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -39,7 +39,7 @@ const mapDispatchToProps = dispatch => ({
 	toggleBought: bindActionCreators(Actions.toggleBought, dispatch),
 	toggleNeeded: bindActionCreators(Actions.toggleNeeded, dispatch),
 	remove: bindActionCreators(Actions.remove, dispatch),
-	rename: bindActionCreators(Actions.rename, dispatch)
+	rename: bindActionCreators(Actions.rename, dispatch),
 });
 
 export default connect(

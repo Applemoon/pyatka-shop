@@ -14,7 +14,7 @@ const ModeSelector = ({ mode, selectMode }) => (
 
 ModeSelector.propTypes = {
 	mode: PropTypes.number.isRequired,
-	selectMode: PropTypes.func.isRequired
+	selectMode: PropTypes.func.isRequired,
 };
 
 export default ModeSelector;
