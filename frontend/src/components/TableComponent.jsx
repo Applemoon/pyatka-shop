@@ -4,7 +4,17 @@ import { Table } from 'react-bootstrap';
 
 import Item from './Item.jsx';
 
-const TableComponent = ({ items, mode, toggleStarred, toggleBought, toggleNeeded, remove, rename }) =>
+const TableComponent = ({
+	items,
+	mode,
+	toggleStarred,
+	toggleBought,
+	toggleNeeded,
+	remove,
+	rename,
+	changeCategory,
+	categories,
+}) =>
 	!items.length ? (
 		<p>Список пуст</p>
 	) : (
@@ -20,6 +30,8 @@ const TableComponent = ({ items, mode, toggleStarred, toggleBought, toggleNeeded
 						toggleNeeded={toggleNeeded}
 						remove={remove}
 						rename={rename}
+						changeCategory={changeCategory}
+						categories={categories}
 					/>
 				))}
 			</tbody>
@@ -41,6 +53,13 @@ TableComponent.propTypes = {
 	toggleNeeded: PropTypes.func.isRequired,
 	remove: PropTypes.func.isRequired,
 	rename: PropTypes.func.isRequired,
+	changeCategory: PropTypes.func.isRequired,
+	categories: PropTypes.arrayOf(
+		PropTypes.shape({
+			key: PropTypes.string.isRequired,
+			value: PropTypes.string.isRequired,
+		}).isRequired
+	).isRequired,
 };
 
 export default TableComponent;

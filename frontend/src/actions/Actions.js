@@ -1,7 +1,7 @@
 import Api from './Api';
 
-export const REQUESTED_ITEMS_SUCCEEDED = 'REQUESTED_ITEMS_SUCCEEDED';
-export const REQUESTED_ITEMS_FAILED = 'REQUESTED_ITEMS_FAILED';
+export const REQUEST_ITEMS_SUCCEEDED = 'REQUEST_ITEMS_SUCCEEDED';
+export const REQUEST_ITEMS_FAILED = 'REQUEST_ITEMS_FAILED';
 
 export const TOGGLE_STARRED = 'TOGGLE_STARRED';
 export const TOGGLE_STARRED_FAILED = 'TOGGLE_STARRED_FAILED';
@@ -21,12 +21,18 @@ export const REMOVE_FAILED = 'REMOVE_FAILED';
 export const RENAME = 'RENAME';
 export const RENAME_FAILED = 'RENAME_FAILED';
 
+export const CHANGE_CATEGORY = 'CHANGE_CATEGORY';
+export const CHANGE_CATEGORY_FAILED = 'CHANGE_CATEGORY_FAILED';
+
 export const MODE_SELECTED = 'MODE_SELECTED';
 
 export const NOW_OFFLINE = 'NOW_OFFLINE';
 export const ADD_ITEM_OFFLINE = 'ADD_ITEM_OFFLINE';
 
 export const EDIT_ITEM = 'EDIT_ITEM';
+
+export const REQUEST_CATEGORIES_SUCCEEDED = 'REQUEST_CATEGORIES_SUCCEEDED';
+export const REQUEST_CATEGORIES_FAILED = 'REQUEST_CATEGORIES_FAILED';
 
 const DEFAULT_ITEM = {
 	id: -1,
@@ -41,12 +47,12 @@ class Actions {
 		Api.loadItems()
 			.then(function(result) {
 				return dispatch({
-					type: REQUESTED_ITEMS_SUCCEEDED,
+					type: REQUEST_ITEMS_SUCCEEDED,
 					items: result.data,
 				});
 			})
 			.catch(err => {
-				dispatch({ type: REQUESTED_ITEMS_FAILED });
+				dispatch({ type: REQUEST_ITEMS_FAILED });
 			});
 	};
 
@@ -133,6 +139,18 @@ class Actions {
 		});
 	};
 
+	static changeCategory = (id, category) => dispatch => {
+		dispatch({
+			type: CHANGE_CATEGORY,
+			id: id,
+			category: category,
+		});
+
+		Api.changeCategory(id, category).catch(err => {
+			!err.response ? dispatch({ type: NOW_OFFLINE }) : dispatch({ type: CHANGE_CATEGORY_FAILED });
+		});
+	};
+
 	static selectMode = mode => dispatch => {
 		dispatch({
 			type: MODE_SELECTED,
@@ -140,11 +158,17 @@ class Actions {
 		});
 	};
 
-	static editItem = id => dispatch => {
-		dispatch({
-			type: EDIT_ITEM,
-			id: id,
-		});
+	static loadCategories = () => dispatch => {
+		Api.loadCategories()
+			.then(function(result) {
+				return dispatch({
+					type: REQUEST_CATEGORIES_SUCCEEDED,
+					categories: result.data,
+				});
+			})
+			.catch(err => {
+				dispatch({ type: REQUEST_CATEGORIES_FAILED });
+			});
 	};
 }
 

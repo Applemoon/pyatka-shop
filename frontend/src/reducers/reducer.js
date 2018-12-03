@@ -1,12 +1,13 @@
 import {
-	REQUESTED_ITEMS_SUCCEEDED,
-	REQUESTED_ITEMS_FAILED,
+	REQUEST_ITEMS_SUCCEEDED,
+	REQUEST_ITEMS_FAILED,
 	TOGGLE_STARRED,
 	TOGGLE_BOUGHT,
 	TOGGLE_NEEDED,
 	ADD_ITEM,
 	REMOVE,
 	RENAME,
+	CHANGE_CATEGORY,
 	MODE_SELECTED,
 	TOGGLE_STARRED_FAILED,
 	TOGGLE_BOUGHT_FAILED,
@@ -14,8 +15,11 @@ import {
 	ADD_ITEM_FAILED,
 	REMOVE_FAILED,
 	RENAME_FAILED,
+	CHANGE_CATEGORY_FAILED,
 	NOW_OFFLINE,
 	ADD_ITEM_OFFLINE,
+	REQUEST_CATEGORIES_SUCCEEDED,
+	REQUEST_CATEGORIES_FAILED,
 } from '../actions/Actions';
 
 const initialState = {
@@ -24,17 +28,18 @@ const initialState = {
 	error: false,
 	mode: 1,
 	offline: false,
+	categories: []
 };
 
 const reducer = (state = initialState, action) => {
 	switch (action.type) {
-		case REQUESTED_ITEMS_SUCCEEDED: {
+		case REQUEST_ITEMS_SUCCEEDED: {
 			return Object.assign({}, state, {
 				items: action.items,
 				loading: false,
 			});
 		}
-		case REQUESTED_ITEMS_FAILED: {
+		case REQUEST_ITEMS_FAILED: {
 			return {
 				loading: false,
 				error: true,
@@ -92,6 +97,14 @@ const reducer = (state = initialState, action) => {
 				}),
 			});
 		}
+		case CHANGE_CATEGORY: {
+			return Object.assign({}, state, {
+				items: state.items.map(item => {
+					if (item.id == action.id) item.category = action.category;
+					return item;
+				}),
+			});
+		}
 		case MODE_SELECTED: {
 			return Object.assign({}, state, {
 				mode: action.mode,
@@ -102,7 +115,9 @@ const reducer = (state = initialState, action) => {
 		case TOGGLE_NEEDED_FAILED:
 		case ADD_ITEM_FAILED:
 		case REMOVE_FAILED:
-		case RENAME_FAILED: {
+		case RENAME_FAILED:
+		case CHANGE_CATEGORY_FAILED:
+		case REQUEST_CATEGORIES_FAILED: {
 			return {
 				error: true,
 			};
@@ -123,6 +138,11 @@ const reducer = (state = initialState, action) => {
 			return Object.assign({}, state, {
 				items: state.items.concat(newItem),
 				offline: true,
+			});
+		}
+		case REQUEST_CATEGORIES_SUCCEEDED: {
+			return Object.assign({}, state, {
+				categories: action.categories,
 			});
 		}
 		default:

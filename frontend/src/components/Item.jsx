@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Form, FormGroup, InputGroup, FormControl } from 'react-bootstrap';
+import { Button, Form, FormGroup, InputGroup, FormControl, ControlLabel } from 'react-bootstrap';
 
 class Item extends PureComponent {
 	state = {
@@ -23,10 +23,35 @@ class Item extends PureComponent {
 		this.setState({ name: event.target.value });
 	};
 
-	translateCategory(category) {
-		const categories = {};
-		return categories.category;
-	}
+	translateCategory = () => {
+		// return this.props.categories[category];  todo если категории - массив
+		const { categories, category } = this.props;
+		const translate = categories.find(el => el.key === category);
+		if (translate) return translate.value;
+		return category;
+	};
+
+	getCategoriesList = () => {
+		const index = this.props.categories.findIndex(el => el.key === this.props.category);
+		const newCategory = {
+			key: this.props.category,
+			value: this.translateCategory(this.props.category),
+		};
+		const sortedCategories = [newCategory]
+			.concat(this.props.categories.slice(0, index))
+			.concat(this.props.categories.slice(index + 1, this.props.categories.length));
+
+		return sortedCategories.map((category, index) => (
+			<option value={category.key} key={category.key}>
+				{category.value}
+			</option>
+		));
+	};
+
+	onSelectChange = event => {
+		const { changeCategory, id } = this.props;
+		changeCategory(id, this.input.value);
+	};
 
 	render() {
 		const {
@@ -61,7 +86,6 @@ class Item extends PureComponent {
 										defaultValue={name}
 										placeholder={name}
 										onChange={this.handleChange}
-										onBlur={this.editDone}
 										autoFocus
 									/>
 									<InputGroup.Button>
@@ -70,12 +94,18 @@ class Item extends PureComponent {
 										</Button>
 									</InputGroup.Button>
 								</InputGroup>
+								<ControlLabel>Категория:</ControlLabel>
+								<FormControl
+									componentClass="select"
+									placeholder={name}
+									onChange={this.onSelectChange}
+									inputRef={ref => (this.input = ref)}>
+									{this.getCategoriesList()}
+								</FormControl>
 							</FormGroup>
 						</Form>
 					</td>
 				)}
-				<td>{this.translateCategory(category)}</td>
-
 				{mode === 1 && !this.state.editing ? (
 					<td>
 						{' '}
@@ -108,6 +138,13 @@ Item.propTypes = {
 	toggleNeeded: PropTypes.func.isRequired,
 	remove: PropTypes.func.isRequired,
 	rename: PropTypes.func.isRequired,
+	changeCategory: PropTypes.func.isRequired,
+	categories: PropTypes.arrayOf(
+		PropTypes.shape({
+			key: PropTypes.string.isRequired,
+			value: PropTypes.string.isRequired,
+		}).isRequired
+	).isRequired,
 };
 
 export default Item;

@@ -31,6 +31,7 @@ const mapStateToProps = state => ({
 	mode: state.mode,
 	offline: state.offline,
 	loading: state.loading,
+	categories: state.categories,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -40,6 +41,7 @@ const mapDispatchToProps = dispatch => ({
 	toggleNeeded: bindActionCreators(Actions.toggleNeeded, dispatch),
 	remove: bindActionCreators(Actions.remove, dispatch),
 	rename: bindActionCreators(Actions.rename, dispatch),
+	changeCategory: bindActionCreators(Actions.changeCategory, dispatch),
 });
 
 export default connect(

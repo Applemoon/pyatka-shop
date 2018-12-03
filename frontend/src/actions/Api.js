@@ -9,10 +9,7 @@ class Api {
 	}
 
 	static addItem(name, needed) {
-		return axios.post('/pyatka/ajax/add_item', {
-			name: name,
-			needed: needed,
-		});
+		return axios.post('/pyatka/ajax/add_item', { name: name, needed: needed });
 	}
 
 	static toggleStarred(id) {
@@ -33,6 +30,14 @@ class Api {
 
 	static rename(id, name) {
 		return axios.post('/pyatka/ajax/rename', { item_id: id, name: name });
+	}
+
+	static changeCategory(id, category) {
+		return axios.post('/pyatka/ajax/change_category', { item_id: id, category: category });
+	}
+
+	static loadCategories() {
+		return axios.get('/pyatka/ajax/categories');
 	}
 }
 

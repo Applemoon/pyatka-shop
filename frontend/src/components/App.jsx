@@ -12,6 +12,7 @@ import OfflineWarning from '../components/OfflineWarning.jsx';
 class App extends PureComponent {
     componentDidMount() {
         this.props.loadItems();
+        this.props.loadCategories();
     }
 
     render() {
@@ -43,6 +44,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
     selectMode: bindActionCreators(Actions.selectMode, dispatch),
     loadItems: bindActionCreators(Actions.loadItems, dispatch),
+    loadCategories: bindActionCreators(Actions.loadCategories, dispatch),
 });
 
 export default connect(
