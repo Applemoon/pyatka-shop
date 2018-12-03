@@ -6,14 +6,18 @@ import TableComponent from '../components/TableComponent.jsx';
 import Actions from '../actions/Actions';
 
 class TableContainer extends PureComponent {
+	sortByCategory = (a, b) => {
+		return a.category > b.category ? 1 : a.category === b.category ? 0 : -1;
+	};
+
 	getItems() {
 		const { items, mode } = this.props;
 
-		if (mode === 1) return items;
+		if (mode === 1) return items.sort(this.sortByCategory);
 
-		return items
-			.filter(el => el.needed)
-			.sort((a, b) => (!a.bought && b.bought ? -1 : !b.bought && a.bought ? 1 : 0));
+		const notBought = items.filter(el => el.needed && !el.bought).sort(this.sortByCategory);
+		const bought = items.filter(el => el.needed && el.bought).sort(this.sortByCategory);
+		return notBought.concat(bought);
 	}
 
 	render() {

@@ -88,3 +88,4 @@ package-lock.json
 /env/
 /node_modules/
 /frontend/static/frontend/main.js
+/static/
