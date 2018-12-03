@@ -105,3 +105,27 @@ def rename(request):
     item.name = name
     item.save()
     return JsonResponse({"status": "ok"})
+
+
+@require_POST
+def change_category(request):
+    if not request.user.is_authenticated:
+        return HttpResponse(status=401)
+    try:
+        data = json.loads(request.body)
+        item_id = data['item_id']
+        category = data['category']
+    except (MultiValueDictKeyError, JSONDecodeError):
+        return HttpResponse(status=400)
+    item = get_object_or_404(Item, pk=item_id)
+    item.category = category
+    item.save()
+    return JsonResponse({"status": "ok"})
+
+
+@require_GET
+def categories(request):
+    if not request.user.is_authenticated:
+        return HttpResponse(status=401)
+    data = Item.getCategories()
+    return JsonResponse(data, safe=False)

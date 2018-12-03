@@ -9,4 +9,6 @@ urlpatterns = [
     path('toggle_bought', views.toggle_bought, name='toggle_bought'),
     path('remove', views.remove, name='remove'),
     path('rename', views.rename, name='rename'),
+    path('change_category', views.change_category, name='change_category'),
+    path('categories', views.categories, name='categories'),
 ]

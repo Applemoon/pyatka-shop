@@ -10,13 +10,13 @@ class Item(models.Model):
     SPICES = 'spices'
     OTHER = 'other'
     CATEGORY_CHOICES = (
-        (MILK, 'молочка'),
-        (MEAT, 'мясо, рыба, яйца'),
-        (FRUITS, 'фрукты'),
-        (VEGETABLES, 'овощи'),
-        (CEREALS, 'крупы, макароны, хлеб'),
-        (SPICES, 'приправы, майонез, кетчуп, соль, масло, сахар'),
-        (OTHER, 'прочее: вода, кондитерка, алкоголь, химия'),
+        (MILK, 'Молочка'),
+        (MEAT, 'Мясо, рыба, яйца'),
+        (FRUITS, 'Фрукты'),
+        (VEGETABLES, 'Овощи'),
+        (CEREALS, 'Крупы, макароны, хлеб'),
+        (SPICES, 'Приправы, майонез, кетчуп, соль, масло, сахар'),
+        (OTHER, 'Прочее: вода, кондитерка, алкоголь, химия'),
     )
 
     name = models.TextField(max_length=50)
@@ -41,3 +41,8 @@ class Item(models.Model):
             'bought': self.bought,
             'category': self.category
         }
+
+    @staticmethod
+    def getCategories():
+        return [{'key': key, 'value': value}
+                for key, value in Item.CATEGORY_CHOICES]
