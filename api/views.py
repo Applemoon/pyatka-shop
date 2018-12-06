@@ -6,14 +6,14 @@ from json.decoder import JSONDecodeError
 from django.core.exceptions import ValidationError
 import json
 
-from .models import Item
+from .models import Category, Item
 
 
 @require_GET
 def items(request):
     if not request.user.is_authenticated:
         return HttpResponse(status=401)
-    raw_items = Item.objects.filter()
+    raw_items = Item.objects.all()
     items = [raw_item.getDict() for raw_item in raw_items]
     return JsonResponse(items, safe=False)
 
@@ -46,20 +46,6 @@ def toggle_needed(request):
         return HttpResponse(status=400)
     item = get_object_or_404(Item, pk=item_id)
     item.needed = not item.needed
-    item.save()
-    return JsonResponse({"status": "ok"})
-
-
-@require_POST
-def toggle_starred(request):
-    if not request.user.is_authenticated:
-        return HttpResponse(status=401)
-    try:
-        item_id = json.loads(request.body)['item_id']
-    except (MultiValueDictKeyError, JSONDecodeError):
-        return HttpResponse(status=400)
-    item = get_object_or_404(Item, pk=item_id)
-    item.starred = not item.starred
     item.save()
     return JsonResponse({"status": "ok"})
 
@@ -118,6 +104,7 @@ def change_category(request):
     except (MultiValueDictKeyError, JSONDecodeError):
         return HttpResponse(status=400)
     item = get_object_or_404(Item, pk=item_id)
+    category = get_object_or_404(Category, name=category)
     item.category = category
     item.save()
     return JsonResponse({"status": "ok"})
@@ -127,5 +114,6 @@ def change_category(request):
 def categories(request):
     if not request.user.is_authenticated:
         return HttpResponse(status=401)
-    data = Item.getCategories()
-    return JsonResponse(data, safe=False)
+    raw_categories = Category.objects.all()
+    categories = [raw_category.getDict() for raw_category in raw_categories]
+    return JsonResponse(categories, safe=False)

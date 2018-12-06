@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Item
+from .models import Category, Item
 
 
 class ItemInline(admin.TabularInline):
@@ -8,9 +8,20 @@ class ItemInline(admin.TabularInline):
 
 
 class ItemAdmin(admin.ModelAdmin):
-    list_filter = ['needed', 'starred', 'bought', 'category']
-    list_display = ('name', 'needed', 'starred', 'bought', 'category')
+    list_filter = ['needed', 'bought', 'category']
+    list_display = ('name', 'needed', 'bought', 'category')
     search_fields = ['name']
 
 
+class CategoryInline(admin.TabularInline):
+    model = Category
+
+
+class CategoryAdmin(admin.ModelAdmin):
+    search_fields = ['name', 'full_name']
+    list_display = ('full_name', 'name', 'position', 'items_count')
+    inlines = [ItemInline]
+
+
+admin.site.register(Category, CategoryAdmin)
 admin.site.register(Item, ItemAdmin)

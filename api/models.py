@@ -1,32 +1,41 @@
 from django.db import models
 
 
-class Item(models.Model):
-    MILK = 'milk'
-    MEAT = 'meat'
-    FRUITS = 'fruits'
-    VEGETABLES = 'vegetables'
-    CEREALS = 'cereals'
-    SPICES = 'spices'
-    OTHER = 'other'
-    CATEGORY_CHOICES = (
-        (MILK, 'Молочка'),
-        (MEAT, 'Мясо, рыба, яйца'),
-        (FRUITS, 'Фрукты'),
-        (VEGETABLES, 'Овощи'),
-        (CEREALS, 'Крупы, макароны, хлеб'),
-        (SPICES, 'Приправы, майонез, кетчуп, соль, масло, сахар'),
-        (OTHER, 'Прочее: вода, кондитерка, алкоголь, химия'),
-    )
+def incrementPosition():
+    return Category.objects.count()
 
-    name = models.TextField(max_length=50)
+
+def getOtherCategory():
+    return Category.objects.get(name='other').id
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=20, unique=True)
+    full_name = models.CharField(max_length=200)
+    position = models.PositiveSmallIntegerField(default=incrementPosition)
+
+    def __str__(self):
+        return self.full_name
+
+    def getDict(self):
+        return {
+            'name': self.name,
+            'full_name': self.full_name,
+            'position': self.position,
+        }
+
+    def items_count(self):
+        return self.item_set.count()
+
+
+class Item(models.Model):
+    name = models.CharField(max_length=50)
     needed = models.BooleanField(default=False)
-    starred = models.BooleanField(default=False)
     bought = models.BooleanField(default=False)
-    category = models.CharField(
-        max_length=20,
-        choices=CATEGORY_CHOICES,
-        default=OTHER,
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_DEFAULT,
+        default=getOtherCategory,
     )
 
     def __str__(self):
@@ -35,14 +44,8 @@ class Item(models.Model):
     def getDict(self):
         return {
             'name': self.name,
-            'starred': self.starred,
             'id': self.id,
             'needed': self.needed,
             'bought': self.bought,
-            'category': self.category
+            'category': self.category.name,
         }
-
-    @staticmethod
-    def getCategories():
-        return [{'key': key, 'value': value}
-                for key, value in Item.CATEGORY_CHOICES]
