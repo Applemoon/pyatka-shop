@@ -1,7 +1,6 @@
 import {
 	REQUEST_ITEMS_SUCCEEDED,
 	REQUEST_ITEMS_FAILED,
-	TOGGLE_STARRED,
 	TOGGLE_BOUGHT,
 	TOGGLE_NEEDED,
 	ADD_ITEM,
@@ -9,7 +8,6 @@ import {
 	RENAME,
 	CHANGE_CATEGORY,
 	MODE_SELECTED,
-	TOGGLE_STARRED_FAILED,
 	TOGGLE_BOUGHT_FAILED,
 	TOGGLE_NEEDED_FAILED,
 	ADD_ITEM_FAILED,
@@ -45,14 +43,6 @@ const reducer = (state = initialState, action) => {
 				error: true,
 			};
 		}
-		case TOGGLE_STARRED: {
-			return Object.assign({}, state, {
-				items: state.items.map(item => {
-					if (item.id == action.id) item.starred = !item.starred;
-					return item;
-				}),
-			});
-		}
 		case TOGGLE_BOUGHT: {
 			return Object.assign({}, state, {
 				items: state.items.map(item => {
@@ -75,7 +65,6 @@ const reducer = (state = initialState, action) => {
 				bought: action.bought,
 				id: action.id,
 				needed: action.needed,
-				starred: action.starred,
 				category: action.category,
 			};
 			return Object.assign({}, state, {
@@ -110,7 +99,6 @@ const reducer = (state = initialState, action) => {
 				mode: action.mode,
 			});
 		}
-		case TOGGLE_STARRED_FAILED:
 		case TOGGLE_BOUGHT_FAILED:
 		case TOGGLE_NEEDED_FAILED:
 		case ADD_ITEM_FAILED:
@@ -133,7 +121,6 @@ const reducer = (state = initialState, action) => {
 				bought: action.bought,
 				id: -1,
 				needed: action.needed,
-				starred: action.starred,
 			};
 			return Object.assign({}, state, {
 				items: state.items.concat(newItem),

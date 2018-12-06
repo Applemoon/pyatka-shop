@@ -12,10 +12,6 @@ class Api {
 		return axios.post('/pyatka/ajax/add_item', { name: name, needed: needed });
 	}
 
-	static toggleStarred(id) {
-		return axios.post('/pyatka/ajax/toggle_starred', { item_id: id });
-	}
-
 	static toggleBought(id) {
 		return axios.post('/pyatka/ajax/toggle_bought', { item_id: id });
 	}

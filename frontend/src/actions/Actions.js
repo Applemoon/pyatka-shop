@@ -3,9 +3,6 @@ import Api from './Api';
 export const REQUEST_ITEMS_SUCCEEDED = 'REQUEST_ITEMS_SUCCEEDED';
 export const REQUEST_ITEMS_FAILED = 'REQUEST_ITEMS_FAILED';
 
-export const TOGGLE_STARRED = 'TOGGLE_STARRED';
-export const TOGGLE_STARRED_FAILED = 'TOGGLE_STARRED_FAILED';
-
 export const TOGGLE_BOUGHT = 'TOGGLE_BOUGHT';
 export const TOGGLE_BOUGHT_FAILED = 'TOGGLE_BOUGHT_FAILED';
 
@@ -38,7 +35,6 @@ const DEFAULT_ITEM = {
 	id: -1,
 	needed: false,
 	bought: false,
-	starred: false,
 	category: 'other',
 };
 
@@ -54,17 +50,6 @@ class Actions {
 			.catch(err => {
 				dispatch({ type: REQUEST_ITEMS_FAILED });
 			});
-	};
-
-	static toggleStarred = id => dispatch => {
-		dispatch({
-			type: TOGGLE_STARRED,
-			id: id,
-		});
-
-		Api.toggleStarred(id).catch(err => {
-			!err.response ? dispatch({ type: NOW_OFFLINE }) : dispatch({ type: TOGGLE_STARRED_FAILED });
-		});
 	};
 
 	static toggleBought = id => dispatch => {
@@ -98,7 +83,6 @@ class Actions {
 					bought: result.data.bought,
 					id: result.data.id,
 					needed: needed,
-					starred: result.data.starred,
 					category: DEFAULT_ITEM.category,
 				});
 			})
@@ -109,7 +93,6 @@ class Actions {
 							name: name,
 							bought: DEFAULT_ITEM.bought,
 							needed: needed,
-							starred: DEFAULT_ITEM.starred,
 							category: DEFAULT_ITEM.category,
 					  })
 					: dispatch({ type: ADD_ITEM_FAILED });

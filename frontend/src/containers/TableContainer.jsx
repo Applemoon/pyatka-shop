@@ -6,8 +6,11 @@ import TableComponent from '../components/TableComponent.jsx';
 import Actions from '../actions/Actions';
 
 class TableContainer extends PureComponent {
-	sortByCategory = (a, b) => {
-		return a.category > b.category ? 1 : a.category === b.category ? 0 : -1;
+	sortByCategory = (itemA, itemB) => {
+		return (
+			this.props.categories.find(category => category.name === itemA.category).position -
+			this.props.categories.find(category => category.name === itemB.category).position
+		);
 	};
 
 	getItems() {
@@ -36,7 +39,6 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
 	loadItems: bindActionCreators(Actions.loadItems, dispatch),
-	toggleStarred: bindActionCreators(Actions.toggleStarred, dispatch),
 	toggleBought: bindActionCreators(Actions.toggleBought, dispatch),
 	toggleNeeded: bindActionCreators(Actions.toggleNeeded, dispatch),
 	remove: bindActionCreators(Actions.remove, dispatch),

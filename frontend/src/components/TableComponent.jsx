@@ -7,7 +7,6 @@ import Item from './Item.jsx';
 const TableComponent = ({
 	items,
 	mode,
-	toggleStarred,
 	toggleBought,
 	toggleNeeded,
 	remove,
@@ -25,7 +24,6 @@ const TableComponent = ({
 						{...el}
 						key={el.id}
 						mode={mode}
-						toggleStarred={toggleStarred}
 						toggleBought={toggleBought}
 						toggleNeeded={toggleNeeded}
 						remove={remove}
@@ -43,12 +41,10 @@ TableComponent.propTypes = {
 		PropTypes.shape({
 			name: PropTypes.string.isRequired,
 			bought: PropTypes.bool.isRequired,
-			starred: PropTypes.bool.isRequired,
 			id: PropTypes.number.isRequired,
 		}).isRequired
 	).isRequired,
 	mode: PropTypes.number.isRequired,
-	toggleStarred: PropTypes.func.isRequired,
 	toggleBought: PropTypes.func.isRequired,
 	toggleNeeded: PropTypes.func.isRequired,
 	remove: PropTypes.func.isRequired,
@@ -56,8 +52,8 @@ TableComponent.propTypes = {
 	changeCategory: PropTypes.func.isRequired,
 	categories: PropTypes.arrayOf(
 		PropTypes.shape({
-			key: PropTypes.string.isRequired,
-			value: PropTypes.string.isRequired,
+			name: PropTypes.string.isRequired,
+			full_name: PropTypes.string.isRequired,
 		}).isRequired
 	).isRequired,
 };

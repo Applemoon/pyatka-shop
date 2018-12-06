@@ -6,6 +6,7 @@ class Item extends PureComponent {
 	state = {
 		editing: false,
 		name: this.props.name,
+		defaultName: this.props.name,
 	};
 
 	editStart = () => {
@@ -14,8 +15,11 @@ class Item extends PureComponent {
 
 	editDone = event => {
 		event.preventDefault();
-		const { rename, id } = this.props;
-		rename(id, this.state.name);
+		if (this.state.name !== this.state.defaultName) {
+			const { rename, id } = this.props;
+			this.setState({ defaultName: this.state.name });
+			rename(id, this.state.name);
+		}
 		this.setState({ editing: false });
 	};
 
@@ -23,59 +27,40 @@ class Item extends PureComponent {
 		this.setState({ name: event.target.value });
 	};
 
-	translateCategory = () => {
-		const { categories, category } = this.props;
-		const translate = categories.find(el => el.key === category);
-		if (translate) return translate.value;
-		return category;
-	};
-
 	getCategoriesList = () => {
-		const index = this.props.categories.findIndex(el => el.key === this.props.category);
-		const newCategory = {
-			key: this.props.category,
-			value: this.translateCategory(this.props.category),
-		};
-		const sortedCategories = [newCategory]
-			.concat(this.props.categories.slice(0, index))
-			.concat(this.props.categories.slice(index + 1, this.props.categories.length));
-
+		const sortedCategories = this.props.categories.sort((a, b) => a.position - b.position);
 		return sortedCategories.map((category, index) => (
-			<option value={category.key} key={category.key}>
-				{category.value}
+			<option value={category.name} key={category.name}>
+				{category.full_name}
 			</option>
 		));
 	};
 
 	onSelectChange = event => {
-		const { changeCategory, id } = this.props;
-		changeCategory(id, this.input.value);
+		this.props.changeCategory(this.props.id, this.input.value);
 	};
 
+	componentWillReceiveProps(nextProps) {
+		if (nextProps.mode !== this.props.mode) {
+			this.setState({ editing: false });
+		}
+	}
+
 	render() {
-		const {
-			name,
-			starred,
-			needed,
-			bought,
-			id,
-			category,
-			mode,
-			toggleStarred,
-			toggleBought,
-			toggleNeeded,
-			remove,
-		} = this.props;
+		const { name, needed, bought, id, category, mode, toggleBought, toggleNeeded, remove } = this.props;
+		const { editDone, handleChange, onSelectChange, editStart, getCategoriesList } = this;
+		const editing = this.state.editing;
 
 		return (
 			<tr className={category + (mode === 2 && bought ? ' bought' : '')}>
-				{!this.state.editing ? (
+				{!editing ? (
 					<td
 						style={{ verticalAlign: 'middle', paddingLeft: '20px' }}
 						onClick={mode === 1 ? () => toggleNeeded(id) : () => toggleBought(id)}>
 						{needed && mode === 1 ? (
 							<span>
-								<Glyphicon glyph="shopping-cart" /> <strong>{name}</strong>{' '}
+								<Glyphicon glyph="shopping-cart" />
+								<strong>{name}</strong>
 								<Glyphicon glyph="shopping-cart" />
 							</span>
 						) : (
@@ -83,15 +68,15 @@ class Item extends PureComponent {
 						)}
 					</td>
 				) : (
-					<td style={{ verticalAlign: 'middle' }} colSpan={this.state.editing ? 2 : 1}>
-						<Form inline onSubmit={this.editDone}>
+					<td style={{ verticalAlign: 'middle' }} colSpan="2">
+						<Form inline onSubmit={editDone}>
 							<FormGroup style={{ marginBottom: '0px' }}>
 								<InputGroup>
 									<FormControl
 										type="text"
 										defaultValue={name}
 										placeholder={name}
-										onChange={this.handleChange}
+										onChange={handleChange}
 										autoFocus
 									/>
 									<InputGroup.Button>
@@ -104,26 +89,25 @@ class Item extends PureComponent {
 								<FormControl
 									componentClass="select"
 									placeholder={name}
-									onChange={this.onSelectChange}
-									inputRef={ref => (this.input = ref)}>
-									{this.getCategoriesList()}
+									onChange={onSelectChange}
+									inputRef={ref => (this.input = ref)}
+									value={category}>
+									{getCategoriesList()}
 								</FormControl>
 							</FormGroup>
 						</Form>
 					</td>
 				)}
-				{mode === 1 && !this.state.editing ? (
+				{mode === 1 && !editing ? (
 					<td>
-						{' '}
-						<Button onClick={this.editStart}>✎</Button>{' '}
+						<Button onClick={editStart}>✎</Button>
 					</td>
 				) : null}
 				{mode === 1 ? (
 					<td>
-						{' '}
 						<Button bsStyle="warning" onClick={() => remove(id)}>
 							X
-						</Button>{' '}
+						</Button>
 					</td>
 				) : null}
 			</tr>
@@ -134,12 +118,10 @@ class Item extends PureComponent {
 Item.propTypes = {
 	name: PropTypes.string.isRequired,
 	bought: PropTypes.bool.isRequired,
-	starred: PropTypes.bool.isRequired,
 	needed: PropTypes.bool.isRequired,
 	id: PropTypes.number.isRequired,
 	category: PropTypes.string.isRequired,
 	mode: PropTypes.number.isRequired,
-	toggleStarred: PropTypes.func.isRequired,
 	toggleBought: PropTypes.func.isRequired,
 	toggleNeeded: PropTypes.func.isRequired,
 	remove: PropTypes.func.isRequired,
@@ -147,8 +129,8 @@ Item.propTypes = {
 	changeCategory: PropTypes.func.isRequired,
 	categories: PropTypes.arrayOf(
 		PropTypes.shape({
-			key: PropTypes.string.isRequired,
-			value: PropTypes.string.isRequired,
+			name: PropTypes.string.isRequired,
+			full_name: PropTypes.string.isRequired,
 		}).isRequired
 	).isRequired,
 };
