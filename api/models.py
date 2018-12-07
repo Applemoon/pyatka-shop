@@ -6,7 +6,10 @@ def incrementPosition():
 
 
 def getOtherCategory():
-    return Category.objects.get(name='other').id
+    try:
+        return Category.objects.get(name='other').id
+    except Category.DoesNotExist:
+        return 0
 
 
 class Category(models.Model):
