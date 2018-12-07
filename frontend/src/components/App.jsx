@@ -11,8 +11,8 @@ import OfflineWarning from '../components/OfflineWarning.jsx';
 
 class App extends PureComponent {
     componentDidMount() {
-        this.props.loadItems();
         this.props.loadCategories();
+        this.props.loadItems();
     }
 
     render() {
