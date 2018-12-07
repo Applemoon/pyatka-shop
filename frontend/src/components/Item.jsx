@@ -9,6 +9,19 @@ class Item extends PureComponent {
 		defaultName: this.props.name,
 	};
 
+	style = {
+		td: {
+			verticalAlign: 'middle',
+			whiteSpace: 'normal',
+		},
+		td_not_editing: {
+			paddingLeft: '20px',
+		},
+		form_group: {
+			marginBottom: '0px',
+		},
+	};
+
 	editStart = () => {
 		this.setState({ editing: true });
 	};
@@ -48,14 +61,14 @@ class Item extends PureComponent {
 
 	render() {
 		const { name, needed, bought, id, category, mode, toggleBought, toggleNeeded, remove } = this.props;
-		const { editDone, handleChange, onSelectChange, editStart, getCategoriesList } = this;
+		const { style, editDone, handleChange, onSelectChange, editStart, getCategoriesList } = this;
 		const editing = this.state.editing;
 
 		return (
 			<tr className={category + (mode === 2 && bought ? ' bought' : '')}>
 				{!editing ? (
 					<td
-						style={{ verticalAlign: 'middle', paddingLeft: '20px' }}
+						style={{ ...style.td, ...style.td_not_editing }}
 						onClick={mode === 1 ? () => toggleNeeded(id) : () => toggleBought(id)}>
 						{needed && mode === 1 ? (
 							<span>
@@ -68,9 +81,9 @@ class Item extends PureComponent {
 						)}
 					</td>
 				) : (
-					<td style={{ verticalAlign: 'middle' }} colSpan="2">
+					<td style={style.td} colSpan="2">
 						<Form inline onSubmit={editDone}>
-							<FormGroup style={{ marginBottom: '0px' }}>
+							<FormGroup style={style.form_group}>
 								<InputGroup>
 									<FormControl
 										type="text"
