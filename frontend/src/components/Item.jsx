@@ -98,7 +98,9 @@ class Item extends PureComponent {
 										</Button>
 									</InputGroup.Button>
 								</InputGroup>
+								{' '}
 								<ControlLabel>Категория:</ControlLabel>
+								{' '}
 								<FormControl
 									componentClass="select"
 									placeholder={name}
