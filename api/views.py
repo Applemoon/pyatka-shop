@@ -2,26 +2,32 @@ from django.shortcuts import get_object_or_404
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_GET, require_POST
 from django.utils.datastructures import MultiValueDictKeyError
-from json.decoder import JSONDecodeError
 from django.core.exceptions import ValidationError
+from django.contrib.auth.decorators import login_required
+from json.decoder import JSONDecodeError
 import json
 
 from .models import Category, Item
 
 
+@login_required(login_url='/pyatka/login')
 @require_GET
 def items(request):
-    if not request.user.is_authenticated:
-        return HttpResponse(status=401)
     raw_items = Item.objects.all()
     items = [raw_item.getDict() for raw_item in raw_items]
     return JsonResponse(items, safe=False)
 
 
+@login_required(login_url='/pyatka/login')
+@require_GET
+def categories(request):
+    raw_categories = Category.objects.all()
+    categories = [raw_category.getDict() for raw_category in raw_categories]
+    return JsonResponse(categories, safe=False)
+
+
 @require_POST
 def add_item(request):
-    if not request.user.is_authenticated:
-        return HttpResponse(status=401)
     try:
         data = json.loads(request.body)
         name = data['name']
@@ -38,8 +44,6 @@ def add_item(request):
 
 @require_POST
 def toggle_needed(request):
-    if not request.user.is_authenticated:
-        return HttpResponse(status=401)
     try:
         item_id = json.loads(request.body)['item_id']
     except (MultiValueDictKeyError, JSONDecodeError):
@@ -52,8 +56,6 @@ def toggle_needed(request):
 
 @require_POST
 def toggle_bought(request):
-    if not request.user.is_authenticated:
-        return HttpResponse(status=401)
     try:
         item_id = json.loads(request.body)['item_id']
     except (MultiValueDictKeyError, JSONDecodeError):
@@ -66,8 +68,6 @@ def toggle_bought(request):
 
 @require_POST
 def remove(request):
-    if not request.user.is_authenticated:
-        return HttpResponse(status=401)
     try:
         item_id = json.loads(request.body)['item_id']
     except (MultiValueDictKeyError, JSONDecodeError):
@@ -79,8 +79,6 @@ def remove(request):
 
 @require_POST
 def rename(request):
-    if not request.user.is_authenticated:
-        return HttpResponse(status=401)
     try:
         data = json.loads(request.body)
         item_id = data['item_id']
@@ -95,8 +93,6 @@ def rename(request):
 
 @require_POST
 def change_category(request):
-    if not request.user.is_authenticated:
-        return HttpResponse(status=401)
     try:
         data = json.loads(request.body)
         item_id = data['item_id']
@@ -108,12 +104,3 @@ def change_category(request):
     item.category = category
     item.save()
     return JsonResponse({"status": "ok"})
-
-
-@require_GET
-def categories(request):
-    if not request.user.is_authenticated:
-        return HttpResponse(status=401)
-    raw_categories = Category.objects.all()
-    categories = [raw_category.getDict() for raw_category in raw_categories]
-    return JsonResponse(categories, safe=False)
