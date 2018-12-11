@@ -9,6 +9,7 @@ import json
 
 from .models import Category, Item
 
+ok_response = JsonResponse({"status": "ok"})
 
 @login_required(login_url='/pyatka/login')
 @require_GET
@@ -29,14 +30,16 @@ def categories(request):
 @require_POST
 def add_item(request):
     try:
-        data = json.loads(request.body)
+        data = request.POST
         name = data['name']
         if len(name) > 100:  # TODO bad checking here
             return HttpResponse(status=400)
-        needed = data.get('needed', False)
+        # needed = data.get('needed', False)
+        needed = json.loads(data.get('needed', 'false'))
         item = Item(name=name, needed=needed)
         item.save()
-    except (MultiValueDictKeyError, JSONDecodeError, ValidationError):
+    except (MultiValueDictKeyError, JSONDecodeError, ValidationError) as exc:
+        print('Exception:', exc)
         return HttpResponse(status=400)
 
     return JsonResponse(item.getDict())
@@ -45,62 +48,67 @@ def add_item(request):
 @require_POST
 def toggle_needed(request):
     try:
-        item_id = json.loads(request.body)['item_id']
-    except (MultiValueDictKeyError, JSONDecodeError):
+        item_id = request.POST['item_id']
+    except MultiValueDictKeyError as exception:
+        print('Exception:', exception)
         return HttpResponse(status=400)
     item = get_object_or_404(Item, pk=item_id)
     item.needed = not item.needed
     item.save()
-    return JsonResponse({"status": "ok"})
+    return ok_response
 
 
 @require_POST
 def toggle_bought(request):
     try:
-        item_id = json.loads(request.body)['item_id']
-    except (MultiValueDictKeyError, JSONDecodeError):
+        item_id = request.POST['item_id']
+    except MultiValueDictKeyError as exception:
+        print('Exception:', exception)
         return HttpResponse(status=400)
     item = get_object_or_404(Item, pk=item_id)
     item.bought = not item.bought
     item.save()
-    return JsonResponse({"status": "ok"})
+    return ok_response
 
 
 @require_POST
 def remove(request):
     try:
-        item_id = json.loads(request.body)['item_id']
-    except (MultiValueDictKeyError, JSONDecodeError):
+        item_id = request.POST['item_id']
+    except MultiValueDictKeyError as exception:
+        print('Exception:', exception)
         return HttpResponse(status=400)
     item = get_object_or_404(Item, pk=item_id)
     item.delete()
-    return JsonResponse({"status": "ok"})
+    return ok_response
 
 
 @require_POST
 def rename(request):
     try:
-        data = json.loads(request.body)
+        data = request.POST
         item_id = data['item_id']
         name = data['name']
-    except (MultiValueDictKeyError, JSONDecodeError):
+    except MultiValueDictKeyError as exception:
+        print('Exception:', exception)
         return HttpResponse(status=400)
     item = get_object_or_404(Item, pk=item_id)
     item.name = name
     item.save()
-    return JsonResponse({"status": "ok"})
+    return ok_response
 
 
 @require_POST
 def change_category(request):
     try:
-        data = json.loads(request.body)
+        data = request.POST
         item_id = data['item_id']
         category = data['category']
-    except (MultiValueDictKeyError, JSONDecodeError):
+    except MultiValueDictKeyError as exception:
+        print('Exception:', exception)
         return HttpResponse(status=400)
     item = get_object_or_404(Item, pk=item_id)
     category = get_object_or_404(Category, name=category)
     item.category = category
     item.save()
-    return JsonResponse({"status": "ok"})
+    return ok_response
