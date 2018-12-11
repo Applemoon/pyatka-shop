@@ -10,7 +10,9 @@ class AddItemForm extends PureComponent {
 
 	handleSubmit = event => {
 		event.preventDefault();
-		const foundItem = this.props.items.find(el => el.name.toLowerCase() === this.state.value.toLowerCase());
+		const foundItem = this.props.items.find(
+			el => el.name.toLowerCase() === this.state.value.toLowerCase()
+		);
 		if (!foundItem) {
 			const needed = this.props.mode === 2;
 			this.props.addItem(this.state.value, needed);

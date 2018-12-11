@@ -59,7 +59,9 @@ class Actions {
 		});
 
 		Api.toggleBought(id).catch(err => {
-			!err.response ? dispatch({ type: NOW_OFFLINE }) : dispatch({ type: TOGGLE_BOUGHT_FAILED });
+			!err.response
+				? dispatch({ type: NOW_OFFLINE })
+				: dispatch({ type: TOGGLE_BOUGHT_FAILED });
 		});
 	};
 
@@ -70,7 +72,9 @@ class Actions {
 		});
 
 		Api.toggleNeeded(id).catch(err => {
-			!err.response ? dispatch({ type: NOW_OFFLINE }) : dispatch({ type: TOGGLE_NEEDED_FAILED });
+			!err.response
+				? dispatch({ type: NOW_OFFLINE })
+				: dispatch({ type: TOGGLE_NEEDED_FAILED });
 		});
 	};
 
@@ -130,7 +134,9 @@ class Actions {
 		});
 
 		Api.changeCategory(id, category).catch(err => {
-			!err.response ? dispatch({ type: NOW_OFFLINE }) : dispatch({ type: CHANGE_CATEGORY_FAILED });
+			!err.response
+				? dispatch({ type: NOW_OFFLINE })
+				: dispatch({ type: CHANGE_CATEGORY_FAILED });
 		});
 	};
 

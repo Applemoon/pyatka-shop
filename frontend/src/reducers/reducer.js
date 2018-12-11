@@ -26,7 +26,7 @@ const initialState = {
 	error: false,
 	mode: 1,
 	offline: false,
-	categories: []
+	categories: [],
 };
 
 const reducer = (state = initialState, action) => {

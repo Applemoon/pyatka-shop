@@ -1,6 +1,14 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Form, FormGroup, InputGroup, FormControl, ControlLabel, Glyphicon } from 'react-bootstrap';
+import {
+	Button,
+	Form,
+	FormGroup,
+	InputGroup,
+	FormControl,
+	ControlLabel,
+	Glyphicon,
+} from 'react-bootstrap';
 
 class Item extends PureComponent {
 	state = {
@@ -60,8 +68,25 @@ class Item extends PureComponent {
 	}
 
 	render() {
-		const { name, needed, bought, id, category, mode, toggleBought, toggleNeeded, remove } = this.props;
-		const { style, editDone, handleChange, onSelectChange, editStart, getCategoriesList } = this;
+		const {
+			name,
+			needed,
+			bought,
+			id,
+			category,
+			mode,
+			toggleBought,
+			toggleNeeded,
+			remove,
+		} = this.props;
+		const {
+			style,
+			editDone,
+			handleChange,
+			onSelectChange,
+			editStart,
+			getCategoriesList,
+		} = this;
 		const editing = this.state.editing;
 
 		return (
@@ -97,10 +122,8 @@ class Item extends PureComponent {
 											✓
 										</Button>
 									</InputGroup.Button>
-								</InputGroup>
-								{' '}
-								<ControlLabel>Категория:</ControlLabel>
-								{' '}
+								</InputGroup>{' '}
+								<ControlLabel>Категория:</ControlLabel>{' '}
 								<FormControl
 									componentClass="select"
 									placeholder={name}
