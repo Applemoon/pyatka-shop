@@ -5,11 +5,15 @@ def incrementPosition():
     return Category.objects.count()
 
 
-def getOtherCategory():
+def getDefaultCategory():
+    default_name = 'other'
     try:
-        return Category.objects.get(name='other').id
+        return Category.objects.get(name=default_name).id
     except Category.DoesNotExist:
-        return 0
+        return Category.objects.create(
+            name=default_name,
+            full_name=default_name,
+        )
 
 
 class Category(models.Model):
@@ -27,7 +31,7 @@ class Category(models.Model):
             'position': self.position,
         }
 
-    def items_count(self):
+    def items_count(self):  # for admin page
         return self.item_set.count()
 
 
@@ -38,7 +42,7 @@ class Item(models.Model):
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_DEFAULT,
-        default=getOtherCategory,
+        default=getDefaultCategory,
     )
 
     def __str__(self):
