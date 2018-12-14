@@ -10,40 +10,38 @@ function getURIParams(params) {
 	}, '');
 }
 
-const baseUrl = '/pyatka';
-
 class Api {
 	static loadItems() {
-		return axios.get(`${baseUrl}/ajax/items`);
+		return axios.get('/ajax/items');
 	}
 
 	static loadCategories() {
-		return axios.get(`${baseUrl}/ajax/categories`);
+		return axios.get('/ajax/categories');
 	}
 
 	static addItem(name, needed) {
-		return axios.post(`${baseUrl}/ajax/add_item`, getURIParams({ name: name, needed: needed }));
+		return axios.post('/ajax/add_item', getURIParams({ name: name, needed: needed }));
 	}
 
 	static toggleBought(id) {
-		return axios.post(`${baseUrl}/ajax/toggle_bought`, getURIParams({ item_id: id }));
+		return axios.post('/ajax/toggle_bought', getURIParams({ item_id: id }));
 	}
 
 	static toggleNeeded(id) {
-		return axios.post(`${baseUrl}/ajax/toggle_needed`, getURIParams({ item_id: id }));
+		return axios.post('/ajax/toggle_needed', getURIParams({ item_id: id }));
 	}
 
 	static remove(id) {
-		return axios.post(`${baseUrl}/ajax/remove`, getURIParams({ item_id: id }));
+		return axios.post('/ajax/remove', getURIParams({ item_id: id }));
 	}
 
 	static rename(id, name) {
-		return axios.post(`${baseUrl}/ajax/rename`, getURIParams({ item_id: id, name: name }));
+		return axios.post('/ajax/rename', getURIParams({ item_id: id, name: name }));
 	}
 
 	static changeCategory(id, category) {
 		return axios.post(
-			`${baseUrl}/ajax/change_category`,
+			'/ajax/change_category',
 			getURIParams({ item_id: id, category: category })
 		);
 	}

@@ -10,7 +10,7 @@ source env/bin/activate
 pip install -r requirements.txt
 ./manage.py makemigrations api
 ./manage.py migrate
-./manage.py collectstatic
+./manage.py collectstatic --noinput
 npm install
 npm run build
 ./run_uwsgi.sh
