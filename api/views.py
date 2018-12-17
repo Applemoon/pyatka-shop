@@ -11,7 +11,8 @@ from .models import Category, Item
 
 ok_response = JsonResponse({"status": "ok"})
 
-@login_required(login_url='/pyatka/login')
+
+@login_required(login_url='/login')
 @require_GET
 def items(request):
     raw_items = Item.objects.all()
@@ -19,7 +20,7 @@ def items(request):
     return JsonResponse(items, safe=False)
 
 
-@login_required(login_url='/pyatka/login')
+@login_required(login_url='/login')
 @require_GET
 def categories(request):
     raw_categories = Category.objects.all()
@@ -34,12 +35,9 @@ def add_item(request):
         name = data['name']
         if len(name) > 100:  # TODO bad checking here
             return HttpResponse(status=400)
-        # needed = data.get('needed', False)
         needed = json.loads(data.get('needed', 'false'))
-        item = Item(name=name, needed=needed)
-        item.save()
-    except (MultiValueDictKeyError, JSONDecodeError, ValidationError) as exc:
-        print('Exception:', exc)
+        item = Item.objects.create(name=name, needed=needed)
+    except (MultiValueDictKeyError, JSONDecodeError, ValidationError):
         return HttpResponse(status=400)
 
     return JsonResponse(item.getDict())
@@ -49,8 +47,7 @@ def add_item(request):
 def toggle_needed(request):
     try:
         item_id = request.POST['item_id']
-    except MultiValueDictKeyError as exception:
-        print('Exception:', exception)
+    except MultiValueDictKeyError:
         return HttpResponse(status=400)
     item = get_object_or_404(Item, pk=item_id)
     item.needed = not item.needed
@@ -62,8 +59,7 @@ def toggle_needed(request):
 def toggle_bought(request):
     try:
         item_id = request.POST['item_id']
-    except MultiValueDictKeyError as exception:
-        print('Exception:', exception)
+    except MultiValueDictKeyError:
         return HttpResponse(status=400)
     item = get_object_or_404(Item, pk=item_id)
     item.bought = not item.bought
@@ -75,8 +71,7 @@ def toggle_bought(request):
 def remove(request):
     try:
         item_id = request.POST['item_id']
-    except MultiValueDictKeyError as exception:
-        print('Exception:', exception)
+    except MultiValueDictKeyError:
         return HttpResponse(status=400)
     item = get_object_or_404(Item, pk=item_id)
     item.delete()
@@ -89,8 +84,7 @@ def rename(request):
         data = request.POST
         item_id = data['item_id']
         name = data['name']
-    except MultiValueDictKeyError as exception:
-        print('Exception:', exception)
+    except MultiValueDictKeyError:
         return HttpResponse(status=400)
     item = get_object_or_404(Item, pk=item_id)
     item.name = name
@@ -104,8 +98,7 @@ def change_category(request):
         data = request.POST
         item_id = data['item_id']
         category = data['category']
-    except MultiValueDictKeyError as exception:
-        print('Exception:', exception)
+    except MultiValueDictKeyError:
         return HttpResponse(status=400)
     item = get_object_or_404(Item, pk=item_id)
     category = get_object_or_404(Category, name=category)
