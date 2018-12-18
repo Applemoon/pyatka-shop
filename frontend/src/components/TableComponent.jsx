@@ -7,8 +7,10 @@ import Item from './Item.jsx';
 const TableComponent = ({
 	items,
 	mode,
-	toggleBought,
-	toggleNeeded,
+	setNeeded,
+	setNotNeeded,
+	setBought,
+	setNotBought,
 	remove,
 	rename,
 	changeCategory,
@@ -24,8 +26,10 @@ const TableComponent = ({
 						{...el}
 						key={el.id}
 						mode={mode}
-						toggleBought={toggleBought}
-						toggleNeeded={toggleNeeded}
+						setNeeded={setNeeded}
+						setNotNeeded={setNotNeeded}
+						setBought={setBought}
+						setNotBought={setNotBought}
 						remove={remove}
 						rename={rename}
 						changeCategory={changeCategory}
@@ -45,8 +49,10 @@ TableComponent.propTypes = {
 		}).isRequired
 	).isRequired,
 	mode: PropTypes.number.isRequired,
-	toggleBought: PropTypes.func.isRequired,
-	toggleNeeded: PropTypes.func.isRequired,
+	setNeeded: PropTypes.func.isRequired,
+	setNotNeeded: PropTypes.func.isRequired,
+	setBought: PropTypes.func.isRequired,
+	setNotBought: PropTypes.func.isRequired,
 	remove: PropTypes.func.isRequired,
 	rename: PropTypes.func.isRequired,
 	changeCategory: PropTypes.func.isRequired,

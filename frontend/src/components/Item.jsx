@@ -67,18 +67,28 @@ class Item extends PureComponent {
 		}
 	}
 
-	render() {
+	handleClick = () => {
 		const {
-			name,
+			mode,
+			id,
 			needed,
 			bought,
-			id,
-			category,
-			mode,
-			toggleBought,
-			toggleNeeded,
-			remove,
+			setNeeded,
+			setNotNeeded,
+			setBought,
+			setNotBought,
 		} = this.props;
+		mode === 1
+			? !needed
+				? setNeeded(id)
+				: setNotNeeded(id)
+			: !bought
+			? setBought(id)
+			: setNotBought(id);
+	};
+
+	render() {
+		const { name, needed, bought, id, category, mode, remove } = this.props;
 		const {
 			style,
 			editDone,
@@ -86,15 +96,14 @@ class Item extends PureComponent {
 			onSelectChange,
 			editStart,
 			getCategoriesList,
+			handleClick,
 		} = this;
 		const editing = this.state.editing;
 
 		return (
 			<tr className={category + (mode === 2 && bought ? ' bought' : '')}>
 				{!editing ? (
-					<td
-						style={{ ...style.td, ...style.td_not_editing }}
-						onClick={mode === 1 ? () => toggleNeeded(id) : () => toggleBought(id)}>
+					<td style={{ ...style.td, ...style.td_not_editing }} onClick={handleClick}>
 						{needed && mode === 1 ? (
 							<span>
 								<Glyphicon glyph="shopping-cart" />
@@ -160,8 +169,10 @@ Item.propTypes = {
 	id: PropTypes.number.isRequired,
 	category: PropTypes.string.isRequired,
 	mode: PropTypes.number.isRequired,
-	toggleBought: PropTypes.func.isRequired,
-	toggleNeeded: PropTypes.func.isRequired,
+	setNeeded: PropTypes.func.isRequired,
+	setNotNeeded: PropTypes.func.isRequired,
+	setBought: PropTypes.func.isRequired,
+	setNotBought: PropTypes.func.isRequired,
 	remove: PropTypes.func.isRequired,
 	rename: PropTypes.func.isRequired,
 	changeCategory: PropTypes.func.isRequired,

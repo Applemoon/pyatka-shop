@@ -44,25 +44,49 @@ def add_item(request):
 
 
 @require_POST
-def toggle_needed(request):
+def set_needed(request):
     try:
         item_id = request.POST['item_id']
     except MultiValueDictKeyError:
         return HttpResponse(status=400)
     item = get_object_or_404(Item, pk=item_id)
-    item.needed = not item.needed
+    item.needed = True
     item.save()
     return ok_response
 
 
 @require_POST
-def toggle_bought(request):
+def set_not_needed(request):
     try:
         item_id = request.POST['item_id']
     except MultiValueDictKeyError:
         return HttpResponse(status=400)
     item = get_object_or_404(Item, pk=item_id)
-    item.bought = not item.bought
+    item.needed = False
+    item.save()
+    return ok_response
+
+
+@require_POST
+def set_bought(request):
+    try:
+        item_id = request.POST['item_id']
+    except MultiValueDictKeyError:
+        return HttpResponse(status=400)
+    item = get_object_or_404(Item, pk=item_id)
+    item.bought = True
+    item.save()
+    return ok_response
+
+
+@require_POST
+def set_not_bought(request):
+    try:
+        item_id = request.POST['item_id']
+    except MultiValueDictKeyError:
+        return HttpResponse(status=400)
+    item = get_object_or_404(Item, pk=item_id)
+    item.bought = False
     item.save()
     return ok_response
 

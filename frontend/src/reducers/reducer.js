@@ -1,23 +1,18 @@
 import {
 	REQUEST_ITEMS_SUCCEEDED,
-	REQUEST_ITEMS_FAILED,
-	TOGGLE_BOUGHT,
-	TOGGLE_NEEDED,
+	SET_NEEDED,
+	SET_NOT_NEEDED,
+	SET_BOUGHT,
+	SET_NOT_BOUGHT,
 	ADD_ITEM,
 	REMOVE,
 	RENAME,
 	CHANGE_CATEGORY,
 	MODE_SELECTED,
-	TOGGLE_BOUGHT_FAILED,
-	TOGGLE_NEEDED_FAILED,
-	ADD_ITEM_FAILED,
-	REMOVE_FAILED,
-	RENAME_FAILED,
-	CHANGE_CATEGORY_FAILED,
 	NOW_OFFLINE,
 	ADD_ITEM_OFFLINE,
 	REQUEST_CATEGORIES_SUCCEEDED,
-	REQUEST_CATEGORIES_FAILED,
+	REQUEST_FAILED,
 } from '../actions/Actions';
 
 const initialState = {
@@ -37,24 +32,34 @@ const reducer = (state = initialState, action) => {
 				loading: false,
 			});
 		}
-		case REQUEST_ITEMS_FAILED: {
-			return {
-				loading: false,
-				error: true,
-			};
-		}
-		case TOGGLE_BOUGHT: {
+		case SET_NEEDED: {
 			return Object.assign({}, state, {
 				items: state.items.map(item => {
-					if (item.id == action.id) item.bought = !item.bought;
+					if (item.id == action.id) item.needed = true;
 					return item;
 				}),
 			});
 		}
-		case TOGGLE_NEEDED: {
+		case SET_NOT_NEEDED: {
 			return Object.assign({}, state, {
 				items: state.items.map(item => {
-					if (item.id == action.id) item.needed = !item.needed;
+					if (item.id == action.id) item.needed = false;
+					return item;
+				}),
+			});
+		}
+		case SET_BOUGHT: {
+			return Object.assign({}, state, {
+				items: state.items.map(item => {
+					if (item.id == action.id) item.bought = true;
+					return item;
+				}),
+			});
+		}
+		case SET_NOT_BOUGHT: {
+			return Object.assign({}, state, {
+				items: state.items.map(item => {
+					if (item.id == action.id) item.bought = false;
 					return item;
 				}),
 			});
@@ -99,14 +104,9 @@ const reducer = (state = initialState, action) => {
 				mode: action.mode,
 			});
 		}
-		case TOGGLE_BOUGHT_FAILED:
-		case TOGGLE_NEEDED_FAILED:
-		case ADD_ITEM_FAILED:
-		case REMOVE_FAILED:
-		case RENAME_FAILED:
-		case CHANGE_CATEGORY_FAILED:
-		case REQUEST_CATEGORIES_FAILED: {
+		case REQUEST_FAILED: {
 			return {
+				loading: false,
 				error: true,
 			};
 		}
