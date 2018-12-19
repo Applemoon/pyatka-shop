@@ -23,12 +23,20 @@ class Api {
 		return axios.post('/ajax/add_item', getURIParams({ name: name, needed: needed }));
 	}
 
-	static toggleBought(id) {
-		return axios.post('/ajax/toggle_bought', getURIParams({ item_id: id }));
+	static setNeeded(id) {
+		return axios.post('/ajax/set_needed', getURIParams({ item_id: id }));
 	}
 
-	static toggleNeeded(id) {
-		return axios.post('/ajax/toggle_needed', getURIParams({ item_id: id }));
+	static setNotNeeded(id) {
+		return axios.post('/ajax/set_not_needed', getURIParams({ item_id: id }));
+	}
+
+	static setBought(id) {
+		return axios.post('/ajax/set_bought', getURIParams({ item_id: id }));
+	}
+
+	static setNotBought(id) {
+		return axios.post('/ajax/set_not_bought', getURIParams({ item_id: id }));
 	}
 
 	static remove(id) {

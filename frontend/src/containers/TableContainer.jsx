@@ -39,8 +39,10 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
 	loadItems: bindActionCreators(Actions.loadItems, dispatch),
-	toggleBought: bindActionCreators(Actions.toggleBought, dispatch),
-	toggleNeeded: bindActionCreators(Actions.toggleNeeded, dispatch),
+	setNeeded: bindActionCreators(Actions.setNeeded, dispatch),
+	setNotNeeded: bindActionCreators(Actions.setNotNeeded, dispatch),
+	setBought: bindActionCreators(Actions.setBought, dispatch),
+	setNotBought: bindActionCreators(Actions.setNotBought, dispatch),
 	remove: bindActionCreators(Actions.remove, dispatch),
 	rename: bindActionCreators(Actions.rename, dispatch),
 	changeCategory: bindActionCreators(Actions.changeCategory, dispatch),

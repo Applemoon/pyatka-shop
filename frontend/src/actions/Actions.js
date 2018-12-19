@@ -1,25 +1,18 @@
 import Api from './Api';
 
 export const REQUEST_ITEMS_SUCCEEDED = 'REQUEST_ITEMS_SUCCEEDED';
-export const REQUEST_ITEMS_FAILED = 'REQUEST_ITEMS_FAILED';
 
-export const TOGGLE_BOUGHT = 'TOGGLE_BOUGHT';
-export const TOGGLE_BOUGHT_FAILED = 'TOGGLE_BOUGHT_FAILED';
+export const SET_NEEDED = 'SET_NEEDED';
+export const SET_NOT_NEEDED = 'SET_NOT_NEEDED';
 
-export const TOGGLE_NEEDED = 'TOGGLE_NEEDED';
-export const TOGGLE_NEEDED_FAILED = 'TOGGLE_NEEDED_FAILED';
+export const SET_BOUGHT = 'SET_BOUGHT';
+export const SET_NOT_BOUGHT = 'SET_NOT_BOUGHT';
 
 export const ADD_ITEM = 'ADD_ITEM';
-export const ADD_ITEM_FAILED = 'ADD_ITEM_FAILED';
-
 export const REMOVE = 'REMOVE';
-export const REMOVE_FAILED = 'REMOVE_FAILED';
-
 export const RENAME = 'RENAME';
-export const RENAME_FAILED = 'RENAME_FAILED';
 
 export const CHANGE_CATEGORY = 'CHANGE_CATEGORY';
-export const CHANGE_CATEGORY_FAILED = 'CHANGE_CATEGORY_FAILED';
 
 export const MODE_SELECTED = 'MODE_SELECTED';
 
@@ -29,7 +22,8 @@ export const ADD_ITEM_OFFLINE = 'ADD_ITEM_OFFLINE';
 export const EDIT_ITEM = 'EDIT_ITEM';
 
 export const REQUEST_CATEGORIES_SUCCEEDED = 'REQUEST_CATEGORIES_SUCCEEDED';
-export const REQUEST_CATEGORIES_FAILED = 'REQUEST_CATEGORIES_FAILED';
+
+export const REQUEST_FAILED = 'REQUEST_FAILED';
 
 const DEFAULT_ITEM = {
 	id: -1,
@@ -48,33 +42,52 @@ class Actions {
 				});
 			})
 			.catch(err => {
-				dispatch({ type: REQUEST_ITEMS_FAILED });
+				dispatch({ type: REQUEST_FAILED });
 			});
 	};
 
-	static toggleBought = id => dispatch => {
+	static setNeeded = id => dispatch => {
 		dispatch({
-			type: TOGGLE_BOUGHT,
+			type: SET_NEEDED,
 			id: id,
 		});
 
-		Api.toggleBought(id).catch(err => {
-			!err.response
-				? dispatch({ type: NOW_OFFLINE })
-				: dispatch({ type: TOGGLE_BOUGHT_FAILED });
+		Api.setNeeded(id).catch(err => {
+			!err.response ? dispatch({ type: NOW_OFFLINE }) : dispatch({ type: REQUEST_FAILED });
 		});
 	};
 
-	static toggleNeeded = id => dispatch => {
+	static setNotNeeded = id => dispatch => {
 		dispatch({
-			type: TOGGLE_NEEDED,
+			type: SET_NOT_NEEDED,
 			id: id,
 		});
 
-		Api.toggleNeeded(id).catch(err => {
-			!err.response
-				? dispatch({ type: NOW_OFFLINE })
-				: dispatch({ type: TOGGLE_NEEDED_FAILED });
+		Api.setNotNeeded(id).catch(err => {
+			!err.response ? dispatch({ type: NOW_OFFLINE }) : dispatch({ type: REQUEST_FAILED });
+		});
+	};
+
+	static setBought = id => dispatch => {
+		console.log('setBought');
+		dispatch({
+			type: SET_BOUGHT,
+			id: id,
+		});
+
+		Api.setBought(id).catch(err => {
+			!err.response ? dispatch({ type: NOW_OFFLINE }) : dispatch({ type: REQUEST_FAILED });
+		});
+	};
+
+	static setNotBought = id => dispatch => {
+		dispatch({
+			type: SET_NOT_BOUGHT,
+			id: id,
+		});
+
+		Api.setNotBought(id).catch(err => {
+			!err.response ? dispatch({ type: NOW_OFFLINE }) : dispatch({ type: REQUEST_FAILED });
 		});
 	};
 
@@ -99,7 +112,7 @@ class Actions {
 							needed: needed,
 							category: DEFAULT_ITEM.category,
 					  })
-					: dispatch({ type: ADD_ITEM_FAILED });
+					: dispatch({ type: REQUEST_FAILED });
 			});
 	};
 
@@ -110,7 +123,7 @@ class Actions {
 		});
 
 		Api.remove(id).catch(err => {
-			!err.response ? dispatch({ type: NOW_OFFLINE }) : dispatch({ type: REMOVE_FAILED });
+			!err.response ? dispatch({ type: NOW_OFFLINE }) : dispatch({ type: REQUEST_FAILED });
 		});
 	};
 
@@ -122,7 +135,7 @@ class Actions {
 		});
 
 		Api.rename(id, name).catch(err => {
-			!err.response ? dispatch({ type: NOW_OFFLINE }) : dispatch({ type: RENAME_FAILED });
+			!err.response ? dispatch({ type: NOW_OFFLINE }) : dispatch({ type: REQUEST_FAILED });
 		});
 	};
 
@@ -134,9 +147,7 @@ class Actions {
 		});
 
 		Api.changeCategory(id, category).catch(err => {
-			!err.response
-				? dispatch({ type: NOW_OFFLINE })
-				: dispatch({ type: CHANGE_CATEGORY_FAILED });
+			!err.response ? dispatch({ type: NOW_OFFLINE }) : dispatch({ type: REQUEST_FAILED });
 		});
 	};
 
@@ -156,7 +167,7 @@ class Actions {
 				});
 			})
 			.catch(err => {
-				dispatch({ type: REQUEST_CATEGORIES_FAILED });
+				dispatch({ type: REQUEST_FAILED });
 			});
 	};
 }
