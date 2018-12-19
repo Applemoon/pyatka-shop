@@ -16,7 +16,7 @@
   "homepage": "https://github.com/Applemoon/pyatka-shop#readme",
   "scripts": {
     "dev": "webpack --watch --mode development ./frontend/src/index.jsx --output ./frontend/static/frontend/main.js",
-    "build": "./manage.py collectstatic --noinput && webpack --mode production ./frontend/src/index.jsx --output ./static/frontend/main.js"
+    "build": "./manage.py test && ./manage.py collectstatic --noinput && webpack --mode production ./frontend/src/index.jsx --output ./static/frontend/main.js"
   },
   "dependencies": {
     "@babel/core": "^7.1.6",
