@@ -8,7 +8,8 @@ import {
 	REMOVE,
 	RENAME,
 	CHANGE_CATEGORY,
-	MODE_SELECTED,
+	MODE_1_SELECTED,
+	MODE_2_SELECTED,
 	NOW_OFFLINE,
 	ADD_ITEM_OFFLINE,
 	REQUEST_CATEGORIES_SUCCEEDED,
@@ -99,9 +100,18 @@ const reducer = (state = initialState, action) => {
 				}),
 			});
 		}
-		case MODE_SELECTED: {
+		case MODE_1_SELECTED: {
 			return Object.assign({}, state, {
-				mode: action.mode,
+				mode: 1,
+				items: state.items.map(item => {
+					item.bought = false;
+					return item;
+				}),
+			});
+		}
+		case MODE_2_SELECTED: {
+			return Object.assign({}, state, {
+				mode: 2,
 			});
 		}
 		case REQUEST_FAILED: {

@@ -83,13 +83,16 @@ def set_bought(request):
 
 @require_POST
 def set_not_bought(request):
-    try:
-        item_id = request.POST['item_id']
-    except MultiValueDictKeyError:
-        return HttpResponse(status=400)
-    item = get_object_or_404(Item, pk=item_id)
-    item.bought = False
-    item.save()
+    if 'item_id' in request.POST:
+        try:
+            item_id = request.POST['item_id']
+        except MultiValueDictKeyError:
+            return HttpResponse(status=400)
+        item = get_object_or_404(Item, pk=item_id)
+        item.bought = False
+        item.save()
+    else:
+        Item.objects.filter(bought=True).update(bought=False)
     return ok_response
 
 

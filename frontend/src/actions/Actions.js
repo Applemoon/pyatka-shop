@@ -14,7 +14,8 @@ export const RENAME = 'RENAME';
 
 export const CHANGE_CATEGORY = 'CHANGE_CATEGORY';
 
-export const MODE_SELECTED = 'MODE_SELECTED';
+export const MODE_1_SELECTED = 'MODE_1_SELECTED';
+export const MODE_2_SELECTED = 'MODE_2_SELECTED';
 
 export const NOW_OFFLINE = 'NOW_OFFLINE';
 export const ADD_ITEM_OFFLINE = 'ADD_ITEM_OFFLINE';
@@ -156,10 +157,14 @@ class Actions {
 	};
 
 	static selectMode = mode => dispatch => {
-		dispatch({
-			type: MODE_SELECTED,
-			mode: mode,
-		});
+		if (mode === 1) {
+			Api.setAllNotBought().catch(err => {
+				!err.response
+					? dispatch({ type: NOW_OFFLINE })
+					: dispatch({ type: REQUEST_FAILED });
+			});
+			dispatch({ type: MODE_1_SELECTED });
+		} else dispatch({ type: MODE_2_SELECTED });
 	};
 
 	static loadCategories = () => dispatch => {

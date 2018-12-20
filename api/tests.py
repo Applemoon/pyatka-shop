@@ -465,7 +465,7 @@ class SetBoughtTests(TestCase):
 
 
 class SetNotBoughtTests(TestCase):
-    def call_set_not_bought(self, data):
+    def call_set_not_bought(self, data={}):
         response = self.client.post(reverse('set_not_bought'), data=data)
         self.assertEqual(response.status_code, 200)
         return json.loads(response.content.decode("utf-8"))
@@ -497,11 +497,32 @@ class SetNotBoughtTests(TestCase):
         item = Item.objects.get(pk=item.id)
         self.assertFalse(item.bought)
 
-    def test_set_not_bought_with_empty_data(self):
-        data = {}
+    def test_set_all_not_bought(self):
+        createItem('test', bought=True)
+        createItem('test', bought=True)
+        createItem('test', bought=False)
+        createItem('test', bought=False)
 
-        response = self.client.post(reverse('set_not_bought'), data=data)
-        self.assertEqual(response.status_code, 400)
+        response_dict = self.call_set_not_bought()
+        self.assertEqual(response_dict['status'], 'ok')
+        for item in Item.objects.all():
+            self.assertFalse(item.bought)
+
+    def test_set_all_not_bought_nothing(self):
+        createItem('test', bought=False)
+        createItem('test', bought=False)
+        createItem('test', bought=False)
+        createItem('test', bought=False)
+
+        response_dict = self.call_set_not_bought()
+        self.assertEqual(response_dict['status'], 'ok')
+        for item in Item.objects.all():
+            self.assertFalse(item.bought)
+
+    def test_set_all_not_bought_empty(self):
+        response_dict = self.call_set_not_bought()
+        self.assertEqual(response_dict['status'], 'ok')
+        self.assertEqual(Item.objects.count(), 0)
 
     def test_set_not_bought_not_existing_item(self):
         data = {'item_id': -1}

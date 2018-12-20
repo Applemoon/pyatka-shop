@@ -56,6 +56,10 @@ class Api {
 			getURIParams({ item_id: id, category: category })
 		);
 	}
+
+	static setAllNotBought() {
+		return axios.post('/ajax/set_not_bought');
+	}
 }
 
 export default Api;
