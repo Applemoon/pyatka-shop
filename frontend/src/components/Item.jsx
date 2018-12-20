@@ -10,6 +10,8 @@ import {
 	Glyphicon,
 } from 'react-bootstrap';
 
+import CategoriesSelector from './CategoriesSelector.jsx';
+
 class Item extends PureComponent {
 	state = {
 		editing: false,
@@ -44,21 +46,12 @@ class Item extends PureComponent {
 		this.setState({ editing: false });
 	};
 
-	handleChange = event => {
+	handleInputChange = event => {
 		this.setState({ name: event.target.value });
 	};
 
-	getCategoriesList = () => {
-		const sortedCategories = this.props.categories.sort((a, b) => a.position - b.position);
-		return sortedCategories.map((category, index) => (
-			<option value={category.name} key={category.name}>
-				{category.full_name}
-			</option>
-		));
-	};
-
-	onSelectChange = event => {
-		this.props.changeCategory(this.props.id, this.input.value);
+	handleSelectorChange = event => {
+		this.props.changeCategory(this.props.id, event.target.value);
 	};
 
 	componentWillReceiveProps(nextProps) {
@@ -88,12 +81,12 @@ class Item extends PureComponent {
 	};
 
 	render() {
-		const { name, needed, bought, id, category, mode, remove } = this.props;
+		const { name, needed, bought, id, category, categories, mode, remove } = this.props;
 		const {
 			style,
 			editDone,
-			handleChange,
-			onSelectChange,
+			handleInputChange,
+			handleSelectorChange,
 			editStart,
 			getCategoriesList,
 			handleClick,
@@ -123,7 +116,7 @@ class Item extends PureComponent {
 										type="text"
 										defaultValue={name}
 										placeholder={name}
-										onChange={handleChange}
+										onChange={handleInputChange}
 										autoFocus
 									/>
 									<InputGroup.Button>
@@ -132,15 +125,11 @@ class Item extends PureComponent {
 										</Button>
 									</InputGroup.Button>
 								</InputGroup>{' '}
-								<ControlLabel>Категория:</ControlLabel>{' '}
-								<FormControl
-									componentClass="select"
-									placeholder={name}
-									onChange={onSelectChange}
-									inputRef={ref => (this.input = ref)}
-									value={category}>
-									{getCategoriesList()}
-								</FormControl>
+								<CategoriesSelector
+									onSelectChange={handleSelectorChange}
+									category={category}
+									categories={categories}
+								/>
 							</FormGroup>
 						</Form>
 					</td>

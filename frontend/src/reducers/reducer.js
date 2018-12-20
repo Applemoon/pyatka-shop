@@ -128,8 +128,9 @@ const reducer = (state = initialState, action) => {
 			});
 		}
 		case REQUEST_CATEGORIES_SUCCEEDED: {
+			const sortedCategories = action.categories.sort((a, b) => a.position - b.position);
 			return Object.assign({}, state, {
-				categories: action.categories,
+				categories: sortedCategories,
 			});
 		}
 		default:

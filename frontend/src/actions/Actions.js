@@ -91,8 +91,12 @@ class Actions {
 		});
 	};
 
-	static addItem = (name, needed = DEFAULT_ITEM.needed) => dispatch => {
-		Api.addItem(name, needed)
+	static addItem = (
+		name,
+		needed = DEFAULT_ITEM.needed,
+		category = DEFAULT_ITEM.category
+	) => dispatch => {
+		Api.addItem(name, needed, category)
 			.then(result => {
 				dispatch({
 					type: ADD_ITEM,
@@ -100,7 +104,7 @@ class Actions {
 					bought: result.data.bought,
 					id: result.data.id,
 					needed: needed,
-					category: DEFAULT_ITEM.category,
+					category: category,
 				});
 			})
 			.catch(err => {
@@ -110,7 +114,7 @@ class Actions {
 							name: name,
 							bought: DEFAULT_ITEM.bought,
 							needed: needed,
-							category: DEFAULT_ITEM.category,
+							category: category,
 					  })
 					: dispatch({ type: REQUEST_FAILED });
 			});

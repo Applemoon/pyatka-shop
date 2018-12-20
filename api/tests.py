@@ -9,21 +9,22 @@ from .models import Category, Item
 
 default_item = {
     'needed': False,
-    'bought': False
+    'bought': False,
+    'category': 'other',
 }
 
 
 test_user = {
     'name': 'john',
     'email': 'lennon@thebeatles.com',
-    'password': 'lennon_pass'
+    'password': 'lennon_pass',
 }
 
 
 def getCategory():
     if Category.objects.count() == 0:
         return Category.objects.create(
-            name='test',
+            name=default_item['category'],
             full_name='This is a test category'
         )
 
@@ -45,7 +46,10 @@ def createItem(
 
 class ItemsTests(TestCase):
     def setUp(self):
-        Category.objects.create(name='test', full_name='Test category')
+        Category.objects.create(
+            name=default_item['category'],
+            full_name='Test category'
+        )
         User.objects.create_user(
             test_user['name'],
             test_user['email'],
@@ -83,6 +87,7 @@ class ItemsTests(TestCase):
     def test_call_items_not_logged_in(self):
         response = self.client.get(reverse('items'))
         self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/login?next=/ajax/items')
 
     def test_call_items_post_method(self):
         self.client.login(
@@ -130,6 +135,7 @@ class CategoriesTests(TestCase):
     def test_call_categories_not_logged_in(self):
         response = self.client.get(reverse('categories'))
         self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/login?next=/ajax/categories')
 
     def test_call_categories_post_method(self):
         self.client.login(
@@ -143,7 +149,10 @@ class CategoriesTests(TestCase):
 
 class AddItemTests(TestCase):
     def setUp(self):
-        Category.objects.create(name='test', full_name='Test category')
+        Category.objects.create(
+            name=default_item['category'],
+            full_name='Test category'
+        )
 
     def call_add_item(self, data):
         response = self.client.post(reverse('add_item'), data=data)
@@ -159,6 +168,58 @@ class AddItemTests(TestCase):
         self.assertEqual(response_dict['name'], name)
         self.assertEqual(response_dict['needed'], default_item['needed'])
         self.assertEqual(response_dict['bought'], default_item['bought'])
+        self.assertEqual(response_dict['category'], default_item['category'])
+        self.assertTrue('id' in response_dict)
+        self.assertEqual(Item.objects.count(), init_items_count + 1)
+
+    def test_create_with_category(self):
+        name = 'test'
+        category_2 = Category.objects.create(
+            name='test 2',
+            full_name='Test category 2'
+        )
+        data = {'name': name, 'category': category_2.name}
+        init_items_count = Item.objects.count()
+
+        response_dict = self.call_add_item(data)
+        self.assertEqual(response_dict['name'], name)
+        self.assertEqual(response_dict['needed'], default_item['needed'])
+        self.assertEqual(response_dict['bought'], default_item['bought'])
+        self.assertEqual(response_dict['category'], category_2.name)
+        self.assertTrue('id' in response_dict)
+        self.assertEqual(Item.objects.count(), init_items_count + 1)
+
+    def test_create_with_category_and_needed(self):
+        name = 'test'
+        category_2 = Category.objects.create(
+            name='test 2',
+            full_name='Test category 2'
+        )
+        data = {'name': name, 'category': category_2.name, 'needed': 'true'}
+        init_items_count = Item.objects.count()
+
+        response_dict = self.call_add_item(data)
+        self.assertEqual(response_dict['name'], name)
+        self.assertTrue(response_dict['needed'])
+        self.assertEqual(response_dict['bought'], default_item['bought'])
+        self.assertEqual(response_dict['category'], category_2.name)
+        self.assertTrue('id' in response_dict)
+        self.assertEqual(Item.objects.count(), init_items_count + 1)
+
+    def test_create_with_category_and_not_needed(self):
+        name = 'test'
+        category_2 = Category.objects.create(
+            name='test 2',
+            full_name='Test category 2'
+        )
+        data = {'name': name, 'category': category_2.name, 'needed': 'false'}
+        init_items_count = Item.objects.count()
+
+        response_dict = self.call_add_item(data)
+        self.assertEqual(response_dict['name'], name)
+        self.assertFalse(response_dict['needed'])
+        self.assertEqual(response_dict['bought'], default_item['bought'])
+        self.assertEqual(response_dict['category'], category_2.name)
         self.assertTrue('id' in response_dict)
         self.assertEqual(Item.objects.count(), init_items_count + 1)
 
@@ -171,6 +232,7 @@ class AddItemTests(TestCase):
         self.assertEqual(response_dict['name'], name)
         self.assertEqual(response_dict['needed'], True)
         self.assertEqual(response_dict['bought'], default_item['bought'])
+        self.assertEqual(response_dict['category'], default_item['category'])
         self.assertTrue('id' in response_dict)
         self.assertEqual(Item.objects.count(), init_items_count + 1)
 
@@ -183,11 +245,20 @@ class AddItemTests(TestCase):
         self.assertEqual(response_dict['name'], name)
         self.assertEqual(response_dict['needed'], False)
         self.assertEqual(response_dict['bought'], default_item['bought'])
+        self.assertEqual(response_dict['category'], default_item['category'])
         self.assertTrue('id' in response_dict)
         self.assertEqual(Item.objects.count(), init_items_count + 1)
 
     def test_create_item_with_empty_data(self):
         data = {}
+        init_items_count = Item.objects.count()
+
+        response = self.client.post(reverse('add_item'), data=data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(Item.objects.count(), init_items_count)
+
+    def test_create_item_with_no_name(self):
+        data = {'needed': 'true', 'category': default_item['category']}
         init_items_count = Item.objects.count()
 
         response = self.client.post(reverse('add_item'), data=data)
@@ -214,6 +285,14 @@ class AddItemTests(TestCase):
 
         response = self.client.post(reverse('add_item'), data=data)
         self.assertEqual(response.status_code, 400)
+        self.assertEqual(Item.objects.count(), init_items_count)
+
+    def test_create_with_wrond_category(self):
+        data = {'name': 'test', 'category': 'wrong'}
+        init_items_count = Item.objects.count()
+
+        response = self.client.post(reverse('add_item'), data=data)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(Item.objects.count(), init_items_count)
 
     def test_add_item_get_method(self):
@@ -546,6 +625,7 @@ class RenameTests(TestCase):
         self.assertEqual(item.name, new_name)
         self.assertEqual(item.needed, default_item['needed'])
         self.assertEqual(item.bought, default_item['bought'])
+        self.assertEqual(item.category.name, default_item['category'])
 
     def test_rename_needed(self):
         item = createItem('test', needed=True)
@@ -557,6 +637,7 @@ class RenameTests(TestCase):
         self.assertEqual(item.name, new_name)
         self.assertTrue(item.needed)
         self.assertEqual(item.bought, default_item['bought'])
+        self.assertEqual(item.category.name, default_item['category'])
 
     def test_rename_not_needed(self):
         item = createItem('test', needed=False)
@@ -568,6 +649,7 @@ class RenameTests(TestCase):
         self.assertEqual(item.name, new_name)
         self.assertFalse(item.needed)
         self.assertEqual(item.bought, default_item['bought'])
+        self.assertEqual(item.category.name, default_item['category'])
 
     def test_rename_bought(self):
         item = createItem('test', bought=True)
@@ -579,6 +661,7 @@ class RenameTests(TestCase):
         self.assertEqual(item.name, new_name)
         self.assertEqual(item.needed, default_item['needed'])
         self.assertTrue(item.bought)
+        self.assertEqual(item.category.name, default_item['category'])
 
     def test_rename_not_bought(self):
         item = createItem('test', bought=False)
@@ -590,6 +673,7 @@ class RenameTests(TestCase):
         self.assertEqual(item.name, new_name)
         self.assertEqual(item.needed, default_item['needed'])
         self.assertFalse(item.bought)
+        self.assertEqual(item.category.name, default_item['category'])
 
     def test_rename_item_with_empty_name(self):
         item = createItem('')
@@ -601,6 +685,7 @@ class RenameTests(TestCase):
         self.assertEqual(item.name, new_name)
         self.assertEqual(item.needed, default_item['needed'])
         self.assertEqual(item.bought, default_item['bought'])
+        self.assertEqual(item.category.name, default_item['category'])
 
     def test_rename_to_empty_name(self):
         item = createItem('test')
@@ -612,6 +697,7 @@ class RenameTests(TestCase):
         self.assertEqual(item.name, new_name)
         self.assertEqual(item.needed, default_item['needed'])
         self.assertEqual(item.bought, default_item['bought'])
+        self.assertEqual(item.category.name, default_item['category'])
 
     def test_rename_with_empty_data(self):
         data = {}

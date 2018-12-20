@@ -12,7 +12,7 @@ from .models import Category, Item
 ok_response = JsonResponse({"status": "ok"})
 
 
-@login_required(login_url='/login')
+@login_required
 @require_GET
 def items(request):
     raw_items = Item.objects.all()
@@ -20,7 +20,7 @@ def items(request):
     return JsonResponse(items, safe=False)
 
 
-@login_required(login_url='/login')
+@login_required
 @require_GET
 def categories(request):
     raw_categories = Category.objects.all()
@@ -36,7 +36,9 @@ def add_item(request):
         if len(name) > 100:  # TODO bad checking here
             return HttpResponse(status=400)
         needed = json.loads(data.get('needed', 'false'))
-        item = Item.objects.create(name=name, needed=needed)
+        category_name = data.get('category', Category.default_name)
+        category = get_object_or_404(Category, name=category_name)
+        item = Item.objects.create(name=name, needed=needed, category=category)
     except (MultiValueDictKeyError, JSONDecodeError, ValidationError):
         return HttpResponse(status=400)
 

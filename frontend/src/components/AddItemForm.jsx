@@ -1,48 +1,59 @@
 import React, { PureComponent } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Button, Form, FormGroup, InputGroup, FormControl } from 'react-bootstrap';
+import { Button, Form, FormGroup, InputGroup, FormControl, ControlLabel } from 'react-bootstrap';
 
 import Actions from '../actions/Actions';
+import CategoriesSelector from './CategoriesSelector.jsx';
 
 class AddItemForm extends PureComponent {
-	state = { value: '' };
+	state = { name: '', category: 'other' };
+	inputId = 'newItemInput';
 
 	handleSubmit = event => {
+		const { name, category } = this.state;
+		const { items, mode, addItem } = this.props;
+
 		event.preventDefault();
-		const foundItem = this.props.items.find(
-			el => el.name.toLowerCase() === this.state.value.toLowerCase()
-		);
+		const foundItem = items.find(el => el.name.toLowerCase() === name.toLowerCase());
 		if (!foundItem) {
-			const needed = this.props.mode === 2;
-			this.props.addItem(this.state.value, needed);
+			const needed = mode === 2;
+			addItem(name, needed, category);
 		}
-		this.setState({ value: '' });
+		this.setState({ name: '' });
+		this.setFocutOnInput();
 	};
 
-	handleChange = event => {
-		this.setState({ value: event.target.value });
+	handleInputChange = event => {
+		this.setState({ name: event.target.value });
 	};
 
-	onKeyPress = () => {
-		if (!document.hasFocus()) document.getElementById('newItemInput').focus();
+	handleSelectorChange = event => {
+		this.setState({ category: event.target.value });
+	};
+
+	setFocutOnInput = () => {
+		document.getElementById(inputId).focus();
 	};
 
 	componentDidMount() {
-		document.addEventListener('keydown', this.onKeyPress, false);
+		document.addEventListener('keydown', this.setFocutOnInput, false);
 	}
 
 	render() {
+		const { name, category } = this.state;
+		const { categories } = this.props;
+		const { inputId, handleSubmit, handleInputChange, handleSelectorChange } = this;
 		return (
-			<Form inline onSubmit={this.handleSubmit}>
+			<Form inline onSubmit={handleSubmit}>
 				<FormGroup>
 					<InputGroup>
 						<FormControl
-							id="newItemInput"
+							id={inputId}
 							type="text"
-							value={this.state.value}
+							value={name}
 							placeholder="Новый продукт"
-							onChange={this.handleChange}
+							onChange={handleInputChange}
 						/>
 						<InputGroup.Button>
 							<Button bsStyle="primary" type="submit">
@@ -50,6 +61,11 @@ class AddItemForm extends PureComponent {
 							</Button>
 						</InputGroup.Button>
 					</InputGroup>
+					<CategoriesSelector
+						onSelectChange={handleSelectorChange}
+						category={category}
+						categories={categories}
+					/>
 				</FormGroup>
 			</Form>
 		);
@@ -59,6 +75,7 @@ class AddItemForm extends PureComponent {
 const mapStateToProps = state => ({
 	mode: state.mode,
 	items: state.items,
+	categories: state.categories,
 });
 
 const mapDispatchToProps = dispatch => ({

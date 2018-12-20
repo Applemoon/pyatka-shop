@@ -19,8 +19,11 @@ class Api {
 		return axios.get('/ajax/categories');
 	}
 
-	static addItem(name, needed) {
-		return axios.post('/ajax/add_item', getURIParams({ name: name, needed: needed }));
+	static addItem(name, needed, category) {
+		return axios.post(
+			'/ajax/add_item',
+			getURIParams({ name: name, needed: needed, category: category })
+		);
 	}
 
 	static setNeeded(id) {

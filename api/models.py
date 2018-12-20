@@ -6,13 +6,12 @@ def incrementPosition():
 
 
 def getDefaultCategory():
-    default_name = 'other'
     try:
-        return Category.objects.get(name=default_name).id
+        return Category.objects.get(name=Category.default_name).id
     except Category.DoesNotExist:
         return Category.objects.create(
-            name=default_name,
-            full_name=default_name,
+            name=Category.default_name,
+            full_name=Category.default_name,
         )
 
 
@@ -20,6 +19,8 @@ class Category(models.Model):
     name = models.CharField(max_length=20, unique=True)
     full_name = models.CharField(max_length=200)
     position = models.PositiveSmallIntegerField(default=incrementPosition)
+
+    default_name = 'other'
 
     def __str__(self):
         return self.full_name
