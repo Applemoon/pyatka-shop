@@ -70,7 +70,6 @@ class Actions {
 	};
 
 	static setBought = id => dispatch => {
-		console.log('setBought');
 		dispatch({
 			type: SET_BOUGHT,
 			id: id,

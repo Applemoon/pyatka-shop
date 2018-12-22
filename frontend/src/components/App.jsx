@@ -27,7 +27,7 @@ class App extends PureComponent {
                 {offline && <OfflineWarning />}
                 <ModeSelector mode={mode} selectMode={selectMode} />
                 <TableContainer />
-                <AddItemForm items={items} />
+                <AddItemForm items={items} forceNeeded={mode === 2} />
             </div>
         );
     }

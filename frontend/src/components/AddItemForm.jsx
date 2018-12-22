@@ -7,18 +7,18 @@ import Actions from '../actions/Actions';
 import CategoriesSelector from './CategoriesSelector.jsx';
 
 class AddItemForm extends PureComponent {
-	state = { name: '', category: 'other' };
+	state = { name: '', category: 'other', needed: true };
 	inputId = 'newItemInput';
 
 	handleSubmit = event => {
-		const { name, category } = this.state;
-		const { items, mode, addItem } = this.props;
+		const { name, category, needed } = this.state;
+		const { items, addItem, forceNeeded } = this.props;
 
 		event.preventDefault();
 		const foundItem = items.find(el => el.name.toLowerCase() === name.toLowerCase());
 		if (!foundItem) {
-			const needed = mode === 2;
-			addItem(name, needed, category);
+			const final_needed = needed || forceNeeded;
+			addItem(name, final_needed, category);
 		}
 		this.setState({ name: '' });
 		this.setFocutOnInput();
@@ -32,8 +32,20 @@ class AddItemForm extends PureComponent {
 		this.setState({ category: event.target.value });
 	};
 
+	handleNeededBtn = event => {
+		const new_needed = !this.state.needed || this.props.forceNeeded;
+		this.setState({ needed: new_needed });
+		if (new_needed) {
+			event.target.classList.remove('active');
+			event.target.classList.remove('btn-success');
+		} else {
+			event.target.classList.add('active');
+			event.target.classList.add('btn-success');
+		}
+	};
+
 	setFocutOnInput = () => {
-		document.getElementById(inputId).focus();
+		document.getElementById(this.inputId).focus();
 	};
 
 	componentDidMount() {
@@ -41,13 +53,19 @@ class AddItemForm extends PureComponent {
 	}
 
 	render() {
-		const { name, category } = this.state;
-		const { categories } = this.props;
-		const { inputId, handleSubmit, handleInputChange, handleSelectorChange } = this;
+		const { name, category, needed } = this.state;
+		const { categories, forceNeeded } = this.props;
+		const {
+			inputId,
+			handleSubmit,
+			handleInputChange,
+			handleSelectorChange,
+			handleCheckboxChange,
+		} = this;
 		return (
 			<Form inline onSubmit={handleSubmit}>
 				<FormGroup>
-					<InputGroup>
+					<InputGroup style={{marginBottom: '5px'}}>
 						<FormControl
 							id={inputId}
 							type="text"
@@ -56,6 +74,15 @@ class AddItemForm extends PureComponent {
 							onChange={handleInputChange}
 						/>
 						<InputGroup.Button>
+							{!forceNeeded ? (
+								<Button
+									onClick={this.handleNeededBtn}
+									bsStyle={needed ? 'success' : 'default'}
+									active={needed}
+									style={{outline: 'none'}}>
+									Нужен
+								</Button>
+							) : null}
 							<Button bsStyle="primary" type="submit">
 								Добавить
 							</Button>
