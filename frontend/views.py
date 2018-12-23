@@ -4,6 +4,6 @@ from django.contrib.auth.decorators import login_required
 
 
 @require_GET
-@login_required(login_url='login')
+@login_required
 def index(request):
     return render(request, 'frontend/index.html')
