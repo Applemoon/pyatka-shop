@@ -45,7 +45,8 @@ class AddItemForm extends PureComponent {
 	};
 
 	setFocutOnInput = () => {
-		document.getElementById(this.inputId).focus();
+		if (document.activeElement.tagName !== 'INPUT')
+			document.getElementById(this.inputId).focus();
 	};
 
 	componentDidMount() {
@@ -65,7 +66,7 @@ class AddItemForm extends PureComponent {
 		return (
 			<Form inline onSubmit={handleSubmit}>
 				<FormGroup>
-					<InputGroup style={{marginBottom: '5px'}}>
+					<InputGroup style={{ marginBottom: '5px' }}>
 						<FormControl
 							id={inputId}
 							type="text"
@@ -79,7 +80,7 @@ class AddItemForm extends PureComponent {
 									onClick={this.handleNeededBtn}
 									bsStyle={needed ? 'success' : 'default'}
 									active={needed}
-									style={{outline: 'none'}}>
+									style={{ outline: 'none' }}>
 									Нужен
 								</Button>
 							) : null}
