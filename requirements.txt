@@ -2,3 +2,4 @@ django
 pep8
 tblib
 coverage
+djangorestframework

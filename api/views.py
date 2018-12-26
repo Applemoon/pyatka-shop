@@ -1,48 +1,53 @@
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse, HttpResponse
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_POST
 from django.utils.datastructures import MultiValueDictKeyError
 from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from json.decoder import JSONDecodeError
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 import json
 
 from .models import Category, Item
+from .serializers import CategorySerializer, ItemSerializer
 
 ok_response = JsonResponse({"status": "ok"})
 
 
 @login_required
-@require_GET
+@api_view(['GET'])
 def items(request):
-    raw_items = Item.objects.all()
-    items = [raw_item.getDict() for raw_item in raw_items]
-    return JsonResponse(items, safe=False)
+    items = Item.objects.all()
+    serializer = ItemSerializer(items, many=True)
+    return Response(serializer.data)
 
 
 @login_required
-@require_GET
+@api_view(['GET'])
 def categories(request):
-    raw_categories = Category.objects.all()
-    categories = [raw_category.getDict() for raw_category in raw_categories]
-    return JsonResponse(categories, safe=False)
+    categories = Category.objects.all()
+    serializer = CategorySerializer(categories, many=True)
+    return Response(serializer.data)
 
 
-@require_POST
+@api_view(['POST'])
 def add_item(request):
     try:
         data = request.POST
         name = data['name']
         if len(name) > 100:  # TODO bad checking here
-            return HttpResponse(status=400)
+            return HttpResponse(status=HTTP_400_BAD_REQUEST)
         needed = json.loads(data.get('needed', 'false'))
         category_name = data.get('category', Category.default_name)
         category = get_object_or_404(Category, name=category_name)
         item = Item.objects.create(name=name, needed=needed, category=category)
     except (MultiValueDictKeyError, JSONDecodeError, ValidationError):
-        return HttpResponse(status=400)
+        return HttpResponse(status=HTTP_400_BAD_REQUEST)
 
-    return JsonResponse(item.getDict())
+    serializer = ItemSerializer(item)
+    return Response(serializer.data)
 
 
 @require_POST
@@ -50,7 +55,7 @@ def set_needed(request):
     try:
         item_id = request.POST['item_id']
     except MultiValueDictKeyError:
-        return HttpResponse(status=400)
+        return HttpResponse(status=HTTP_400_BAD_REQUEST)
     item = get_object_or_404(Item, pk=item_id)
     item.needed = True
     item.save()
@@ -62,7 +67,7 @@ def set_not_needed(request):
     try:
         item_id = request.POST['item_id']
     except MultiValueDictKeyError:
-        return HttpResponse(status=400)
+        return HttpResponse(status=HTTP_400_BAD_REQUEST)
     item = get_object_or_404(Item, pk=item_id)
     item.needed = False
     item.save()
@@ -74,7 +79,7 @@ def set_bought(request):
     try:
         item_id = request.POST['item_id']
     except MultiValueDictKeyError:
-        return HttpResponse(status=400)
+        return HttpResponse(status=HTTP_400_BAD_REQUEST)
     item = get_object_or_404(Item, pk=item_id)
     item.bought = True
     item.save()
@@ -87,7 +92,7 @@ def set_not_bought(request):
         try:
             item_id = request.POST['item_id']
         except MultiValueDictKeyError:
-            return HttpResponse(status=400)
+            return HttpResponse(status=HTTP_400_BAD_REQUEST)
         item = get_object_or_404(Item, pk=item_id)
         item.bought = False
         item.save()
@@ -101,7 +106,7 @@ def remove(request):
     try:
         item_id = request.POST['item_id']
     except MultiValueDictKeyError:
-        return HttpResponse(status=400)
+        return HttpResponse(status=HTTP_400_BAD_REQUEST)
     item = get_object_or_404(Item, pk=item_id)
     item.delete()
     return ok_response
@@ -114,7 +119,7 @@ def rename(request):
         item_id = data['item_id']
         name = data['name']
     except MultiValueDictKeyError:
-        return HttpResponse(status=400)
+        return HttpResponse(status=HTTP_400_BAD_REQUEST)
     item = get_object_or_404(Item, pk=item_id)
     item.name = name
     item.save()
@@ -128,7 +133,7 @@ def change_category(request):
         item_id = data['item_id']
         category = data['category']
     except MultiValueDictKeyError:
-        return HttpResponse(status=400)
+        return HttpResponse(status=HTTP_400_BAD_REQUEST)
     item = get_object_or_404(Item, pk=item_id)
     category = get_object_or_404(Category, name=category)
     item.category = category

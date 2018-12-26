@@ -25,13 +25,6 @@ class Category(models.Model):
     def __str__(self):
         return self.full_name
 
-    def getDict(self):
-        return {
-            'name': self.name,
-            'full_name': self.full_name,
-            'position': self.position,
-        }
-
     def items_count(self):  # for admin page
         return self.item_set.count()
 
@@ -48,12 +41,3 @@ class Item(models.Model):
 
     def __str__(self):
         return self.name
-
-    def getDict(self):
-        return {
-            'name': self.name,
-            'id': self.id,
-            'needed': self.needed,
-            'bought': self.bought,
-            'category': self.category.name,
-        }
