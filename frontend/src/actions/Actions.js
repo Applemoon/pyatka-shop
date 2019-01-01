@@ -34,6 +34,19 @@ const DEFAULT_ITEM = {
 };
 
 class Actions {
+	static loadCategories = () => dispatch => {
+		Api.loadCategories()
+			.then(function(result) {
+				return dispatch({
+					type: REQUEST_CATEGORIES_SUCCEEDED,
+					categories: result.data,
+				});
+			})
+			.catch(err => {
+				dispatch({ type: REQUEST_FAILED, method: 'loadCategories', message: err });
+			});
+	};
+
 	static loadItems = () => dispatch => {
 		Api.loadItems()
 			.then(function(result) {
@@ -43,7 +56,7 @@ class Actions {
 				});
 			})
 			.catch(err => {
-				dispatch({ type: REQUEST_FAILED });
+				dispatch({ type: REQUEST_FAILED, method: 'loadItems', message: err });
 			});
 	};
 
@@ -54,7 +67,9 @@ class Actions {
 		});
 
 		Api.setNeeded(id).catch(err => {
-			!err.response ? dispatch({ type: NOW_OFFLINE }) : dispatch({ type: REQUEST_FAILED });
+			!err.response
+				? dispatch({ type: NOW_OFFLINE })
+				: dispatch({ type: REQUEST_FAILED, method: 'setNeeded', message: err });
 		});
 	};
 
@@ -65,7 +80,9 @@ class Actions {
 		});
 
 		Api.setNotNeeded(id).catch(err => {
-			!err.response ? dispatch({ type: NOW_OFFLINE }) : dispatch({ type: REQUEST_FAILED });
+			!err.response
+				? dispatch({ type: NOW_OFFLINE })
+				: dispatch({ type: REQUEST_FAILED, method: 'setNotNeeded', message: err });
 		});
 	};
 
@@ -76,7 +93,9 @@ class Actions {
 		});
 
 		Api.setBought(id).catch(err => {
-			!err.response ? dispatch({ type: NOW_OFFLINE }) : dispatch({ type: REQUEST_FAILED });
+			!err.response
+				? dispatch({ type: NOW_OFFLINE })
+				: dispatch({ type: REQUEST_FAILED, method: 'setBought', message: err });
 		});
 	};
 
@@ -87,7 +106,9 @@ class Actions {
 		});
 
 		Api.setNotBought(id).catch(err => {
-			!err.response ? dispatch({ type: NOW_OFFLINE }) : dispatch({ type: REQUEST_FAILED });
+			!err.response
+				? dispatch({ type: NOW_OFFLINE })
+				: dispatch({ type: REQUEST_FAILED, method: 'setNotBought', message: err });
 		});
 	};
 
@@ -116,7 +137,7 @@ class Actions {
 							needed: needed,
 							category: category,
 					  })
-					: dispatch({ type: REQUEST_FAILED });
+					: dispatch({ type: REQUEST_FAILED, method: 'addItem', message: err });
 			});
 	};
 
@@ -127,7 +148,9 @@ class Actions {
 		});
 
 		Api.remove(id).catch(err => {
-			!err.response ? dispatch({ type: NOW_OFFLINE }) : dispatch({ type: REQUEST_FAILED });
+			!err.response
+				? dispatch({ type: NOW_OFFLINE })
+				: dispatch({ type: REQUEST_FAILED, method: 'remove', message: err });
 		});
 	};
 
@@ -139,7 +162,9 @@ class Actions {
 		});
 
 		Api.rename(id, name).catch(err => {
-			!err.response ? dispatch({ type: NOW_OFFLINE }) : dispatch({ type: REQUEST_FAILED });
+			!err.response
+				? dispatch({ type: NOW_OFFLINE })
+				: dispatch({ type: REQUEST_FAILED, method: 'rename', message: err });
 		});
 	};
 
@@ -151,7 +176,9 @@ class Actions {
 		});
 
 		Api.changeCategory(id, category).catch(err => {
-			!err.response ? dispatch({ type: NOW_OFFLINE }) : dispatch({ type: REQUEST_FAILED });
+			!err.response
+				? dispatch({ type: NOW_OFFLINE })
+				: dispatch({ type: REQUEST_FAILED, method: 'changeCategory', message: err });
 		});
 	};
 
@@ -160,23 +187,10 @@ class Actions {
 			Api.setAllNotBought().catch(err => {
 				!err.response
 					? dispatch({ type: NOW_OFFLINE })
-					: dispatch({ type: REQUEST_FAILED });
+					: dispatch({ type: REQUEST_FAILED, method: 'selectMode', message: err });
 			});
 			dispatch({ type: MODE_1_SELECTED });
 		} else dispatch({ type: MODE_2_SELECTED });
-	};
-
-	static loadCategories = () => dispatch => {
-		Api.loadCategories()
-			.then(function(result) {
-				return dispatch({
-					type: REQUEST_CATEGORIES_SUCCEEDED,
-					categories: result.data,
-				});
-			})
-			.catch(err => {
-				dispatch({ type: REQUEST_FAILED });
-			});
 	};
 }
 

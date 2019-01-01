@@ -27,6 +27,11 @@ const initialState = {
 
 const reducer = (state = initialState, action) => {
 	switch (action.type) {
+		case REQUEST_CATEGORIES_SUCCEEDED: {
+			return Object.assign({}, state, {
+				categories: action.categories.sort((a, b) => a.position - b.position),
+			});
+		}
 		case REQUEST_ITEMS_SUCCEEDED: {
 			return Object.assign({}, state, {
 				items: action.items,
@@ -115,6 +120,8 @@ const reducer = (state = initialState, action) => {
 			});
 		}
 		case REQUEST_FAILED: {
+			console.error('Reduce error at method:', action.method);
+			console.error(action.message);
 			return {
 				loading: false,
 				error: true,
@@ -135,12 +142,6 @@ const reducer = (state = initialState, action) => {
 			return Object.assign({}, state, {
 				items: state.items.concat(newItem),
 				offline: true,
-			});
-		}
-		case REQUEST_CATEGORIES_SUCCEEDED: {
-			const sortedCategories = action.categories.sort((a, b) => a.position - b.position);
-			return Object.assign({}, state, {
-				categories: sortedCategories,
 			});
 		}
 		default:

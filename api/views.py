@@ -2,13 +2,10 @@ from django.shortcuts import get_object_or_404
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_POST
 from django.utils.datastructures import MultiValueDictKeyError
-from django.core.exceptions import ValidationError
-from django.contrib.auth.decorators import login_required
-from json.decoder import JSONDecodeError
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
-import json
+from rest_framework import mixins
+from rest_framework import generics
+from rest_framework import permissions
 
 from .models import Category, Item
 from .serializers import CategorySerializer, ItemSerializer
@@ -16,38 +13,35 @@ from .serializers import CategorySerializer, ItemSerializer
 ok_response = JsonResponse({"status": "ok"})
 
 
-@login_required
-@api_view(['GET'])
-def items(request):
-    items = Item.objects.all()
-    serializer = ItemSerializer(items, many=True)
-    return Response(serializer.data)
+class ItemsList(mixins.ListModelMixin,
+                mixins.CreateModelMixin,
+                generics.GenericAPIView):
+    """
+    Get all items or create one.
+    """
+    queryset = Item.objects.all()
+    serializer_class = ItemSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
 
-@login_required
-@api_view(['GET'])
-def categories(request):
-    categories = Category.objects.all()
-    serializer = CategorySerializer(categories, many=True)
-    return Response(serializer.data)
+class CategoriesList(mixins.ListModelMixin,
+                     mixins.CreateModelMixin,
+                     generics.GenericAPIView):
+    """
+    Get all categories.
+    """
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (permissions.IsAuthenticated,)
 
-
-@api_view(['POST'])
-def add_item(request):
-    try:
-        data = request.POST
-        name = data['name']
-        if len(name) > 100:  # TODO bad checking here
-            return HttpResponse(status=HTTP_400_BAD_REQUEST)
-        needed = json.loads(data.get('needed', 'false'))
-        category_name = data.get('category', Category.default_name)
-        category = get_object_or_404(Category, name=category_name)
-        item = Item.objects.create(name=name, needed=needed, category=category)
-    except (MultiValueDictKeyError, JSONDecodeError, ValidationError):
-        return HttpResponse(status=HTTP_400_BAD_REQUEST)
-
-    serializer = ItemSerializer(item)
-    return Response(serializer.data)
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
 
 @require_POST

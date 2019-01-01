@@ -1,8 +1,9 @@
-from django.test import TestCase
+from django.test import TestCase  # TODO delete after full DRF
 from django.urls import reverse
 from django.contrib.auth.models import User
+from rest_framework.test import APITestCase
 from random import randrange
-import json
+import json  # TODO delete after full DRF
 
 from .models import Category, Item
 
@@ -12,10 +13,8 @@ default_item = {
     'bought': False,
     'category': 'other',
 }
-
-
 test_user = {
-    'name': 'john',
+    'username': 'john',
     'email': 'lennon@thebeatles.com',
     'password': 'lennon_pass',
 }
@@ -44,38 +43,64 @@ def createItem(
     )
 
 
-class ItemsTests(TestCase):
+class CategoriesTests(APITestCase):
+    def setUp(self):
+        User.objects.create_user(**test_user)
+
+    def call_categories(self):
+        self.client.login(**test_user)
+        response = self.client.get(reverse('categories'))
+        self.assertEqual(response.status_code, 200)
+        return response.data
+
+    def test_call_categories_with_empty(self):
+        response_arr = self.call_categories()
+        self.assertEqual(len(response_arr), 0)
+
+    def test_call_categories_not_empty(self):
+        [Category.objects.create(
+            name='test' + str(i), full_name='Test category ' + str(i))
+            for i in range(2, randrange(3, 20))]
+        init_categories_count = Category.objects.count()
+
+        response_arr = self.call_categories()
+        self.assertEqual(len(response_arr), Category.objects.count())
+        self.assertEqual(len(response_arr), init_categories_count)
+
+    def test_call_categories_not_logged_in(self):
+        response = self.client.get(reverse('categories'))
+        self.assertEqual(response.status_code, 403)
+
+    def test_call_categories_post_method(self):
+        self.client.login(**test_user)
+
+        response = self.client.post(reverse('categories'))
+        self.assertEqual(response.status_code, 405)
+
+
+class ItemsGetTests(APITestCase):
     def setUp(self):
         Category.objects.create(
             name=default_item['category'],
             full_name='Test category'
         )
-        User.objects.create_user(
-            test_user['name'],
-            test_user['email'],
-            test_user['password']
-        )
+        User.objects.create_user(**test_user)
 
-    def test_call_items_with_empty(self):
-        self.client.login(
-            username=test_user['name'],
-            password=test_user['password']
-        )
-
+    def call_items_get(self):
+        self.client.login(**test_user)
         response = self.client.get(reverse('items'))
-        response_arr = json.loads(response.content.decode("utf-8"))
+        self.assertEqual(response.status_code, 200)
+        return response.data
+
+    def test_items_get_with_empty(self):
+        response_arr = self.call_items_get()
         self.assertEqual(len(response_arr), 0)
 
-    def test_call_items_not_empty(self):
-        self.client.login(
-            username=test_user['name'],
-            password=test_user['password']
-        )
+    def test_items_get_not_empty(self):
         [createItem(name) for name in 'test' + str(randrange(2, 20))]
         init_items_count = Item.objects.count()
 
-        response = self.client.get(reverse('items'))
-        response_arr = json.loads(response.content.decode("utf-8"))
+        response_arr = self.call_items_get()
         self.assertEqual(len(response_arr), Item.objects.count())
         self.assertEqual(len(response_arr), init_items_count)
         for resp_item in response_arr:
@@ -84,87 +109,31 @@ class ItemsTests(TestCase):
             self.assertEqual(item.needed, resp_item['needed'])
             self.assertEqual(item.bought, resp_item['bought'])
 
-    def test_call_items_not_logged_in(self):
+    def test_items_get_not_logged_in(self):
         response = self.client.get(reverse('items'))
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/login?next=/ajax/items')
-
-    def test_call_items_post_method(self):
-        self.client.login(
-            username=test_user['name'],
-            password=test_user['password']
-        )
-
-        response = self.client.post(reverse('items'))
-        self.assertEqual(response.status_code, 405)
+        self.assertEqual(response.status_code, 403)
 
 
-class CategoriesTests(TestCase):
-    def setUp(self):
-        User.objects.create_user(
-            test_user['name'],
-            test_user['email'],
-            test_user['password']
-        )
-
-    def test_call_categories_with_empty(self):
-        self.client.login(
-            username=test_user['name'],
-            password=test_user['password']
-        )
-
-        response = self.client.get(reverse('categories'))
-        response_arr = json.loads(response.content.decode("utf-8"))
-        self.assertEqual(len(response_arr), 0)
-
-    def test_call_categories_not_empty(self):
-        self.client.login(
-            username=test_user['name'],
-            password=test_user['password']
-        )
-        [Category.objects.create(
-            name='test' + str(i), full_name='Test category ' + str(i))
-            for i in range(2, randrange(3, 20))]
-        init_categories_count = Category.objects.count()
-
-        response = self.client.get(reverse('categories'))
-        response_arr = json.loads(response.content.decode("utf-8"))
-        self.assertEqual(len(response_arr), Category.objects.count())
-        self.assertEqual(len(response_arr), init_categories_count)
-
-    def test_call_categories_not_logged_in(self):
-        response = self.client.get(reverse('categories'))
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/login?next=/ajax/categories')
-
-    def test_call_categories_post_method(self):
-        self.client.login(
-            username=test_user['name'],
-            password=test_user['password']
-        )
-
-        response = self.client.post(reverse('categories'))
-        self.assertEqual(response.status_code, 405)
-
-
-class AddItemTests(TestCase):
+class ItemsPostTests(APITestCase):
     def setUp(self):
         Category.objects.create(
             name=default_item['category'],
             full_name='Test category'
         )
+        User.objects.create_user(**test_user)
 
-    def call_add_item(self, data):
-        response = self.client.post(reverse('add_item'), data=data)
-        self.assertEqual(response.status_code, 200)
-        return json.loads(response.content.decode("utf-8"))
+    def call_items_post(self, data):
+        self.client.login(**test_user)
+        response = self.client.post(reverse('items'), data)
+        self.assertEqual(response.status_code, 201)
+        return response.data
 
     def test_create_default_item(self):
         name = 'test'
         data = {'name': name}
         init_items_count = Item.objects.count()
 
-        response_dict = self.call_add_item(data)
+        response_dict = self.call_items_post(data)
         self.assertEqual(response_dict['name'], name)
         self.assertEqual(response_dict['needed'], default_item['needed'])
         self.assertEqual(response_dict['bought'], default_item['bought'])
@@ -181,7 +150,7 @@ class AddItemTests(TestCase):
         data = {'name': name, 'category': category_2.name}
         init_items_count = Item.objects.count()
 
-        response_dict = self.call_add_item(data)
+        response_dict = self.call_items_post(data)
         self.assertEqual(response_dict['name'], name)
         self.assertEqual(response_dict['needed'], default_item['needed'])
         self.assertEqual(response_dict['bought'], default_item['bought'])
@@ -198,7 +167,7 @@ class AddItemTests(TestCase):
         data = {'name': name, 'category': category_2.name, 'needed': 'true'}
         init_items_count = Item.objects.count()
 
-        response_dict = self.call_add_item(data)
+        response_dict = self.call_items_post(data)
         self.assertEqual(response_dict['name'], name)
         self.assertTrue(response_dict['needed'])
         self.assertEqual(response_dict['bought'], default_item['bought'])
@@ -215,7 +184,7 @@ class AddItemTests(TestCase):
         data = {'name': name, 'category': category_2.name, 'needed': 'false'}
         init_items_count = Item.objects.count()
 
-        response_dict = self.call_add_item(data)
+        response_dict = self.call_items_post(data)
         self.assertEqual(response_dict['name'], name)
         self.assertFalse(response_dict['needed'])
         self.assertEqual(response_dict['bought'], default_item['bought'])
@@ -224,11 +193,12 @@ class AddItemTests(TestCase):
         self.assertEqual(Item.objects.count(), init_items_count + 1)
 
     def test_create_needed_item(self):
+        self.client.login(**test_user)
         name = 'test'
         data = {'name': name, 'needed': 'true'}
         init_items_count = Item.objects.count()
 
-        response_dict = self.call_add_item(data)
+        response_dict = self.call_items_post(data)
         self.assertEqual(response_dict['name'], name)
         self.assertEqual(response_dict['needed'], True)
         self.assertEqual(response_dict['bought'], default_item['bought'])
@@ -237,11 +207,12 @@ class AddItemTests(TestCase):
         self.assertEqual(Item.objects.count(), init_items_count + 1)
 
     def test_create_not_needed_item(self):
+        self.client.login(**test_user)
         name = 'test'
         data = {'name': name, 'needed': 'false'}
         init_items_count = Item.objects.count()
 
-        response_dict = self.call_add_item(data)
+        response_dict = self.call_items_post(data)
         self.assertEqual(response_dict['name'], name)
         self.assertEqual(response_dict['needed'], False)
         self.assertEqual(response_dict['bought'], default_item['bought'])
@@ -250,30 +221,34 @@ class AddItemTests(TestCase):
         self.assertEqual(Item.objects.count(), init_items_count + 1)
 
     def test_create_item_with_empty_data(self):
+        self.client.login(**test_user)
         data = {}
         init_items_count = Item.objects.count()
 
-        response = self.client.post(reverse('add_item'), data=data)
+        response = self.client.post(reverse('items'), data)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(Item.objects.count(), init_items_count)
 
     def test_create_item_with_no_name(self):
+        self.client.login(**test_user)
         data = {'needed': 'true', 'category': default_item['category']}
         init_items_count = Item.objects.count()
 
-        response = self.client.post(reverse('add_item'), data=data)
+        response = self.client.post(reverse('items'), data)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(Item.objects.count(), init_items_count)
 
     def test_create_item_with_wrong_needed(self):
+        self.client.login(**test_user)
         data = {'name': 'test', 'needed': 'test2'}
         init_items_count = Item.objects.count()
 
-        response = self.client.post(reverse('add_item'), data=data)
+        response = self.client.post(reverse('items'), data)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(Item.objects.count(), init_items_count)
 
     def test_create_item_with_long_name(self):
+        self.client.login(**test_user)
         name = 'dkfjo2u3ron23rn2lk3nlk2j34lk2j34lkj234lkj234lkn23' +\
             'dkfjo2u3ron23rn2lk3nlk2j34lk2j34lkj234lkj234lkn23' +\
             'dkfjo2u3ron23rn2lk3nlk2j34lk2j34lkj234lkj234lkn23' +\
@@ -283,24 +258,34 @@ class AddItemTests(TestCase):
         data = {'name': name}
         init_items_count = Item.objects.count()
 
-        response = self.client.post(reverse('add_item'), data=data)
+        response = self.client.post(reverse('items'), data)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(Item.objects.count(), init_items_count)
 
-    def test_create_with_wrond_category(self):
+    def test_create_item_with_wrong_category(self):
+        self.client.login(**test_user)
         data = {'name': 'test', 'category': 'wrong'}
         init_items_count = Item.objects.count()
 
-        response = self.client.post(reverse('add_item'), data=data)
+        response = self.client.post(reverse('items'), data)
         self.assertEqual(response.status_code, 404)
         self.assertEqual(Item.objects.count(), init_items_count)
 
-    def test_add_item_get_method(self):
+    def test_items_get_not_logged_in(self):
+        data = {'name': 'test'}
+        init_items_count = Item.objects.count()
+
+        response = self.client.post(reverse('items'), data=data)
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(Item.objects.count(), init_items_count)
+
+    def test_items_put_method(self):
+        self.client.login(**test_user)
         name = 'test'
         data = {'name': name}
         init_items_count = Item.objects.count()
 
-        response = self.client.get(reverse('add_item'), data=data)
+        response = self.client.put(reverse('items'), data)
         self.assertEqual(response.status_code, 405)
         self.assertEqual(Item.objects.count(), init_items_count)
 
