@@ -27,38 +27,35 @@ class Api {
 	}
 
 	static setNeeded(id) {
-		return axios.post('/ajax/set_needed', getURIParams({ item_id: id }));
+		return axios.patch(`/ajax/items/${id}`, getURIParams({ needed: true }));
 	}
 
 	static setNotNeeded(id) {
-		return axios.post('/ajax/set_not_needed', getURIParams({ item_id: id }));
+		return axios.patch(`/ajax/items/${id}`, getURIParams({ needed: false }));
 	}
 
 	static setBought(id) {
-		return axios.post('/ajax/set_bought', getURIParams({ item_id: id }));
+		return axios.patch(`/ajax/items/${id}`, getURIParams({ bought: true }));
 	}
 
 	static setNotBought(id) {
-		return axios.post('/ajax/set_not_bought', getURIParams({ item_id: id }));
+		return axios.patch(`/ajax/items/${id}`, getURIParams({ bought: false }));
 	}
 
 	static remove(id) {
-		return axios.post('/ajax/remove', getURIParams({ item_id: id }));
+		return axios.delete('/ajax/items/' + id);
 	}
 
 	static rename(id, name) {
-		return axios.post('/ajax/rename', getURIParams({ item_id: id, name: name }));
+		return axios.patch(`/ajax/items/${id}`, getURIParams({ name: name }));
 	}
 
 	static changeCategory(id, category) {
-		return axios.post(
-			'/ajax/change_category',
-			getURIParams({ item_id: id, category: category })
-		);
+		return axios.patch(`/ajax/items/${id}`, getURIParams({ category: category }));
 	}
 
 	static setAllNotBought() {
-		return axios.post('/ajax/set_not_bought');
+		return axios.post('/ajax/all_not_bought');
 	}
 }
 

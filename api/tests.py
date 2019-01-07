@@ -1,14 +1,13 @@
-from django.test import TestCase  # TODO delete after full DRF
-from django.urls import reverse
 from django.contrib.auth.models import User
+from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 from random import randrange
-import json  # TODO delete after full DRF
 
 from .models import Category, Item
 
 
 default_item = {
+    'name': '',
     'needed': False,
     'bought': False,
     'category': 'other',
@@ -225,18 +224,13 @@ class ItemsPostTests(APITestCase):
         data = {}
         init_items_count = Item.objects.count()
 
-        response = self.client.post(reverse('items'), data)
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(Item.objects.count(), init_items_count)
-
-    def test_create_item_with_no_name(self):
-        self.client.login(**test_user)
-        data = {'needed': 'true', 'category': default_item['category']}
-        init_items_count = Item.objects.count()
-
-        response = self.client.post(reverse('items'), data)
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(Item.objects.count(), init_items_count)
+        response_dict = self.call_items_post(data)
+        self.assertEqual(response_dict['name'], default_item['name'])
+        self.assertEqual(response_dict['needed'], default_item['needed'])
+        self.assertEqual(response_dict['bought'], default_item['bought'])
+        self.assertEqual(response_dict['category'], default_item['category'])
+        self.assertTrue('id' in response_dict)
+        self.assertEqual(Item.objects.count(), init_items_count + 1)
 
     def test_create_item_with_wrong_needed(self):
         self.client.login(**test_user)
@@ -290,206 +284,219 @@ class ItemsPostTests(APITestCase):
         self.assertEqual(Item.objects.count(), init_items_count)
 
 
-class SetNeededTests(TestCase):
-    def call_set_needed(self, data):
-        response = self.client.post(reverse('set_needed'), data=data)
+class SetNeededTests(APITestCase):
+    def setUp(self):
+        User.objects.create_user(**test_user)
+
+    def call_set_needed(self, itemId):
+        self.client.login(**test_user)
+        response = self.client.patch(
+            reverse('item_detail', args=[itemId]),
+            data={'needed': True}
+        )
         self.assertEqual(response.status_code, 200)
-        return json.loads(response.content.decode("utf-8"))
 
     def test_set_needed_default(self):
         item = createItem('test')
-        data = {'item_id': item.id}
 
-        response_dict = self.call_set_needed(data)
-        self.assertEqual(response_dict['status'], 'ok')
-        item = Item.objects.get(pk=item.id)
-        self.assertTrue(item.needed)
+        self.call_set_needed(item.id)
+        self.assertTrue(Item.objects.get(pk=item.id).needed)
 
     def test_set_needed_needless(self):
         item = createItem('test', needed=False)
-        data = {'item_id': item.id}
 
-        response_dict = self.call_set_needed(data)
-        self.assertEqual(response_dict['status'], 'ok')
-        item = Item.objects.get(pk=item.id)
-        self.assertTrue(item.needed)
+        self.call_set_needed(item.id)
+        self.assertTrue(Item.objects.get(pk=item.id).needed)
 
     def test_set_needed_needed(self):
         item = createItem('test', needed=True)
-        data = {'item_id': item.id}
 
-        response_dict = self.call_set_needed(data)
-        self.assertEqual(response_dict['status'], 'ok')
-        item = Item.objects.get(pk=item.id)
-        self.assertTrue(item.needed)
+        self.call_set_needed(item.id)
+        self.assertTrue(Item.objects.get(pk=item.id).needed)
 
-    def test_set_needed_with_empty_data(self):
-        data = {}
+    def test_set_needed_not_logged_in(self):
+        item = createItem('test')
 
-        response = self.client.post(reverse('set_needed'), data=data)
-        self.assertEqual(response.status_code, 400)
+        response = self.client.patch(
+            reverse('item_detail', args=[item.id]),
+            data={'needed': True}
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(item.needed, default_item['needed'])
 
     def test_set_needed_not_existing_item(self):
-        data = {'item_id': -1}
-
-        response = self.client.post(reverse('set_needed'), data=data)
+        self.client.login(**test_user)
+        response = self.client.patch(
+            reverse('item_detail', args=[0]),
+            data={'needed': True}
+        )
         self.assertEqual(response.status_code, 404)
 
-    def test_set_needed_get_method(self):
-        item = createItem('test')
-        data = {'item_id': item.id}
 
-        response = self.client.get(reverse('set_needed'), data=data)
-        self.assertEqual(response.status_code, 405)
+class SetNotNeededTests(APITestCase):
+    def setUp(self):
+        User.objects.create_user(**test_user)
 
-
-class SetNotNeededTests(TestCase):
-    def call_set_not_needed(self, data):
-        response = self.client.post(reverse('set_not_needed'), data=data)
+    def call_set_not_needed(self, itemId):
+        self.client.login(**test_user)
+        response = self.client.patch(
+            reverse('item_detail', args=[itemId]),
+            data={'needed': False}
+        )
         self.assertEqual(response.status_code, 200)
-        return json.loads(response.content.decode("utf-8"))
 
     def test_set_not_needed_default(self):
         item = createItem('test')
-        data = {'item_id': item.id}
 
-        response_dict = self.call_set_not_needed(data)
-        self.assertEqual(response_dict['status'], 'ok')
-        item = Item.objects.get(pk=item.id)
-        self.assertFalse(item.needed)
+        self.call_set_not_needed(item.id)
+        self.assertFalse(Item.objects.get(pk=item.id).needed)
 
     def test_set_not_needed_needless(self):
         item = createItem('test', needed=False)
-        data = {'item_id': item.id}
 
-        response_dict = self.call_set_not_needed(data)
-        self.assertEqual(response_dict['status'], 'ok')
-        item = Item.objects.get(pk=item.id)
-        self.assertFalse(item.needed)
+        self.call_set_not_needed(item.id)
+        self.assertFalse(Item.objects.get(pk=item.id).needed)
 
     def test_set_not_needed_needed(self):
         item = createItem('test', needed=True)
-        data = {'item_id': item.id}
 
-        response_dict = self.call_set_not_needed(data)
-        self.assertEqual(response_dict['status'], 'ok')
-        item = Item.objects.get(pk=item.id)
-        self.assertFalse(item.needed)
+        self.call_set_not_needed(item.id)
+        self.assertFalse(Item.objects.get(pk=item.id).needed)
 
-    def test_set_not_needed_with_empty_data(self):
-        data = {}
+    def test_set_not_needed_not_logged_in(self):
+        item = createItem('test')
 
-        response = self.client.post(reverse('set_not_needed'), data=data)
-        self.assertEqual(response.status_code, 400)
+        response = self.client.patch(
+            reverse('item_detail', args=[item.id]),
+            data={'needed': False}
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(item.needed, default_item['needed'])
 
     def test_set_not_needed_not_existing_item(self):
-        data = {'item_id': -1}
-
-        response = self.client.post(reverse('set_not_needed'), data=data)
+        self.client.login(**test_user)
+        response = self.client.patch(
+            reverse('item_detail', args=[0]),
+            data={'needed': False}
+        )
         self.assertEqual(response.status_code, 404)
 
-    def test_set_not_needed_get_method(self):
-        item = createItem('test')
-        data = {'item_id': item.id}
 
-        response = self.client.get(reverse('set_not_needed'), data=data)
-        self.assertEqual(response.status_code, 405)
+class SetBoughtTests(APITestCase):
+    def setUp(self):
+        User.objects.create_user(**test_user)
 
-
-class SetBoughtTests(TestCase):
-    def call_set_bought(self, data):
-        response = self.client.post(reverse('set_bought'), data=data)
+    def call_set_bought(self, itemId):
+        self.client.login(**test_user)
+        response = self.client.patch(
+            reverse('item_detail', args=[itemId]),
+            data={'bought': True}
+        )
         self.assertEqual(response.status_code, 200)
-        return json.loads(response.content.decode("utf-8"))
 
     def test_set_bought_default(self):
         item = createItem('test')
-        data = {'item_id': item.id}
 
-        response_dict = self.call_set_bought(data)
-        self.assertEqual(response_dict['status'], 'ok')
-        item = Item.objects.get(pk=item.id)
-        self.assertTrue(item.bought)
+        self.call_set_bought(item.id)
+        self.assertTrue(Item.objects.get(pk=item.id).bought)
 
     def test_set_bought_not_bought(self):
-        item = createItem('test', bought=False)
-        data = {'item_id': item.id}
+        item = createItem('test', needed=False)
 
-        response_dict = self.call_set_bought(data)
-        self.assertEqual(response_dict['status'], 'ok')
-        item = Item.objects.get(pk=item.id)
-        self.assertTrue(item.bought)
+        self.call_set_bought(item.id)
+        self.assertTrue(Item.objects.get(pk=item.id).bought)
 
-    def test_set_bought_bought(self):
-        item = createItem('test', bought=True)
-        data = {'item_id': item.id}
+    def test_set_bought_needed(self):
+        item = createItem('test', needed=True)
 
-        response_dict = self.call_set_bought(data)
-        self.assertEqual(response_dict['status'], 'ok')
-        item = Item.objects.get(pk=item.id)
-        self.assertTrue(item.bought)
+        self.call_set_bought(item.id)
+        self.assertTrue(Item.objects.get(pk=item.id).bought)
 
-    def test_set_bought_with_empty_data(self):
-        data = {}
+    def test_set_bought_not_logged_in(self):
+        item = createItem('test')
 
-        response = self.client.post(reverse('set_bought'), data=data)
-        self.assertEqual(response.status_code, 400)
+        response = self.client.patch(
+            reverse('item_detail', args=[item.id]),
+            data={'bought': True}
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(item.bought, default_item['bought'])
 
     def test_set_bought_not_existing_item(self):
-        data = {'item_id': -1}
-
-        response = self.client.post(reverse('set_bought'), data=data)
+        self.client.login(**test_user)
+        response = self.client.patch(
+            reverse('item_detail', args=[0]),
+            data={'bought': True}
+        )
         self.assertEqual(response.status_code, 404)
 
-    def test_set_bought_get_method(self):
-        item = createItem('test')
-        data = {'item_id': item.id}
 
-        response = self.client.get(reverse('set_bought'), data=data)
-        self.assertEqual(response.status_code, 405)
+class SetNotBoughtTests(APITestCase):
+    def setUp(self):
+        User.objects.create_user(**test_user)
 
-
-class SetNotBoughtTests(TestCase):
-    def call_set_not_bought(self, data={}):
-        response = self.client.post(reverse('set_not_bought'), data=data)
+    def call_set_not_bought(self, itemId):
+        self.client.login(**test_user)
+        response = self.client.patch(
+            reverse('item_detail', args=[itemId]),
+            data={'bought': False}
+        )
         self.assertEqual(response.status_code, 200)
-        return json.loads(response.content.decode("utf-8"))
 
     def test_set_not_bought_default(self):
         item = createItem('test')
-        data = {'item_id': item.id}
 
-        response_dict = self.call_set_not_bought(data)
-        self.assertEqual(response_dict['status'], 'ok')
-        item = Item.objects.get(pk=item.id)
-        self.assertFalse(item.bought)
+        self.call_set_not_bought(item.id)
+        self.assertFalse(Item.objects.get(pk=item.id).bought)
 
     def test_set_not_bought_not_bought(self):
-        item = createItem('test', bought=False)
-        data = {'item_id': item.id}
+        item = createItem('test', needed=False)
 
-        response_dict = self.call_set_not_bought(data)
-        self.assertEqual(response_dict['status'], 'ok')
-        item = Item.objects.get(pk=item.id)
-        self.assertFalse(item.bought)
+        self.call_set_not_bought(item.id)
+        self.assertFalse(Item.objects.get(pk=item.id).bought)
 
-    def test_set_not_bought_bought(self):
-        item = createItem('test', bought=True)
-        data = {'item_id': item.id}
+    def test_set_not_bought_needed(self):
+        item = createItem('test', needed=True)
 
-        response_dict = self.call_set_not_bought(data)
-        self.assertEqual(response_dict['status'], 'ok')
-        item = Item.objects.get(pk=item.id)
-        self.assertFalse(item.bought)
+        self.call_set_not_bought(item.id)
+        self.assertFalse(Item.objects.get(pk=item.id).bought)
 
-    def test_set_all_not_bought(self):
+    def test_set_not_bought_not_logged_in(self):
+        item = createItem('test')
+
+        response = self.client.patch(
+            reverse('item_detail', args=[item.id]),
+            data={'bought': False}
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(item.bought, default_item['bought'])
+
+    def test_set_not_bought_not_existing_item(self):
+        self.client.login(**test_user)
+        response = self.client.patch(
+            reverse('item_detail', args=[0]),
+            data={'bought': False}
+        )
+        self.assertEqual(response.status_code, 404)
+
+
+class SetAllNotBoughtTests(APITestCase):
+    def setUp(self):
+        User.objects.create_user(**test_user)
+
+    def call_set_all_not_bought(self):
+        self.client.login(**test_user)
+        response = self.client.post(reverse('all_not_bought'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, {"status": "ok"})
+
+    def test_set_all_not_bought_default(self):
         createItem('test', bought=True)
         createItem('test', bought=True)
         createItem('test', bought=False)
         createItem('test', bought=False)
 
-        response_dict = self.call_set_not_bought()
-        self.assertEqual(response_dict['status'], 'ok')
+        self.call_set_all_not_bought()
         for item in Item.objects.all():
             self.assertFalse(item.bought)
 
@@ -499,134 +506,127 @@ class SetNotBoughtTests(TestCase):
         createItem('test', bought=False)
         createItem('test', bought=False)
 
-        response_dict = self.call_set_not_bought()
-        self.assertEqual(response_dict['status'], 'ok')
+        self.call_set_all_not_bought()
         for item in Item.objects.all():
             self.assertFalse(item.bought)
 
     def test_set_all_not_bought_empty(self):
-        response_dict = self.call_set_not_bought()
-        self.assertEqual(response_dict['status'], 'ok')
+        self.call_set_all_not_bought()
         self.assertEqual(Item.objects.count(), 0)
 
-    def test_set_not_bought_not_existing_item(self):
-        data = {'item_id': -1}
+    def test_set_all_not_bought_not_logged_in(self):
+        items = [
+            createItem('test', bought=True),
+            createItem('test', bought=True),
+            createItem('test', bought=True),
+            createItem('test', bought=True),
+        ]
 
-        response = self.client.post(reverse('set_not_bought'), data=data)
-        self.assertEqual(response.status_code, 404)
+        response = self.client.post(reverse('all_not_bought'))
+        # self.assertEqual(response.status_code, 403)  # TODO after DRF
+        self.assertEqual(response.status_code, 302)
+        for item in items:
+            self.assertTrue(item.bought)
 
-    def test_set_not_bought_get_method(self):
-        item = createItem('test')
-        data = {'item_id': item.id}
+    def test_set_all_not_bought_get_method(self):
+        self.client.login(**test_user)
+        createItem('test', bought=True)
 
-        response = self.client.get(reverse('set_not_bought'), data=data)
+        response = self.client.get(reverse('all_not_bought'))
         self.assertEqual(response.status_code, 405)
 
 
-class RemoveTests(TestCase):
-    def call_remove_item(self, data):
-        response = self.client.post(reverse('remove'), data=data)
-        self.assertEqual(response.status_code, 200)
+class RemoveTests(APITestCase):
+    def setUp(self):
+        User.objects.create_user(**test_user)
 
-        response_dict = json.loads(response.content.decode("utf-8"))
-        self.assertEqual(response_dict['status'], 'ok')
-        return response
+    def call_remove_item(self, item_id):
+        self.client.login(**test_user)
+        response = self.client.delete(reverse('item_detail', args=[item_id]))
+        self.assertEqual(response.status_code, 204)
 
     def test_remove_default_item(self):
         item = createItem('test')
-        data = {'item_id': item.id}
 
-        self.call_remove_item(data)
+        self.call_remove_item(item.id)
         self.assertEqual(Item.objects.count(), 0)
 
     def test_remove_not_last_item(self):
         item = createItem('test1')
         createItem('test2')
-        data = {'item_id': item.id}
 
-        self.call_remove_item(data)
+        self.call_remove_item(item.id)
         self.assertEqual(Item.objects.count(), 1)
         with self.assertRaises(Item.DoesNotExist):
             Item.objects.get(pk=item.id)
 
     def test_remove_needed_item(self):
         item = createItem('test', needed=True)
-        data = {'item_id': item.id}
 
-        self.call_remove_item(data)
+        self.call_remove_item(item.id)
         self.assertEqual(Item.objects.count(), 0)
 
     def test_remove_not_needed_item(self):
         item = createItem('test', needed=False)
-        data = {'item_id': item.id}
 
-        self.call_remove_item(data)
+        self.call_remove_item(item.id)
         self.assertEqual(Item.objects.count(), 0)
 
     def test_remove_bought_item(self):
         item = createItem('test', bought=True)
-        data = {'item_id': item.id}
 
-        self.call_remove_item(data)
+        self.call_remove_item(item.id)
         self.assertEqual(Item.objects.count(), 0)
 
     def test_remove_not_bought_item(self):
         item = createItem('test', bought=False)
-        data = {'item_id': item.id}
 
-        self.call_remove_item(data)
+        self.call_remove_item(item.id)
         self.assertEqual(Item.objects.count(), 0)
 
     def test_remove_item_with_empty_name(self):
         item = createItem('')
-        data = {'item_id': item.id}
 
-        self.call_remove_item(data)
+        self.call_remove_item(item.id)
         self.assertEqual(Item.objects.count(), 0)
 
-    def test_remove_item_with_empty_data(self):
-        data = {}
+    def test_remove_not_logged_in(self):
+        item = createItem('test')
 
-        response = self.client.post(reverse('remove'), data=data)
-        self.assertEqual(response.status_code, 400)
+        response = self.client.delete(reverse('item_detail', args=[item.id]))
+        self.assertEqual(response.status_code, 403)
 
     def test_remove_not_existing_item(self):
-        data = {'item_id': -1}
-
-        response = self.client.post(reverse('remove'), data=data)
+        self.client.login(**test_user)
+        response = self.client.delete(reverse('item_detail', args=[0]))
         self.assertEqual(response.status_code, 404)
 
     def test_double_remove(self):
+        self.client.login(**test_user)
         item = createItem('test')
-        data = {'item_id': item.id}
-        self.call_remove_item(data)
+        self.call_remove_item(item.id)
 
-        response = self.client.post(reverse('remove'), data=data)
+        response = self.client.delete(reverse('item_detail', args=[item.id]))
         self.assertEqual(response.status_code, 404)
 
-    def test_remove_item_get_method(self):
-        item = createItem('test')
-        data = {'item_id': item.id}
 
-        response = self.client.get(reverse('remove'), data=data)
-        self.assertEqual(response.status_code, 405)
+class RenameTests(APITestCase):
+    def setUp(self):
+        User.objects.create_user(**test_user)
 
-
-class RenameTests(TestCase):
-    def call_rename(self, data):
-        response = self.client.post(reverse('rename'), data=data)
+    def call_rename(self, item_id, name):
+        self.client.login(**test_user)
+        response = self.client.patch(
+            reverse('item_detail', args=[item_id]),
+            data={'name': name}
+        )
         self.assertEqual(response.status_code, 200)
-
-        response_dict = json.loads(response.content.decode("utf-8"))
-        self.assertEqual(response_dict['status'], 'ok')
-        return response
 
     def test_rename_default(self):
         item = createItem('test')
         new_name = 'test2'
-        data = {'item_id': item.id, 'name': new_name}
 
-        self.call_rename(data)
+        self.call_rename(item.id, new_name)
         item = Item.objects.get(pk=item.id)
         self.assertEqual(item.name, new_name)
         self.assertEqual(item.needed, default_item['needed'])
@@ -636,9 +636,8 @@ class RenameTests(TestCase):
     def test_rename_needed(self):
         item = createItem('test', needed=True)
         new_name = 'test2'
-        data = {'item_id': item.id, 'name': new_name}
 
-        self.call_rename(data)
+        self.call_rename(item.id, new_name)
         item = Item.objects.get(pk=item.id)
         self.assertEqual(item.name, new_name)
         self.assertTrue(item.needed)
@@ -648,9 +647,8 @@ class RenameTests(TestCase):
     def test_rename_not_needed(self):
         item = createItem('test', needed=False)
         new_name = 'test2'
-        data = {'item_id': item.id, 'name': new_name}
 
-        self.call_rename(data)
+        self.call_rename(item.id, new_name)
         item = Item.objects.get(pk=item.id)
         self.assertEqual(item.name, new_name)
         self.assertFalse(item.needed)
@@ -660,9 +658,8 @@ class RenameTests(TestCase):
     def test_rename_bought(self):
         item = createItem('test', bought=True)
         new_name = 'test2'
-        data = {'item_id': item.id, 'name': new_name}
 
-        self.call_rename(data)
+        self.call_rename(item.id, new_name)
         item = Item.objects.get(pk=item.id)
         self.assertEqual(item.name, new_name)
         self.assertEqual(item.needed, default_item['needed'])
@@ -672,9 +669,8 @@ class RenameTests(TestCase):
     def test_rename_not_bought(self):
         item = createItem('test', bought=False)
         new_name = 'test2'
-        data = {'item_id': item.id, 'name': new_name}
 
-        self.call_rename(data)
+        self.call_rename(item.id, new_name)
         item = Item.objects.get(pk=item.id)
         self.assertEqual(item.name, new_name)
         self.assertEqual(item.needed, default_item['needed'])
@@ -684,9 +680,8 @@ class RenameTests(TestCase):
     def test_rename_item_with_empty_name(self):
         item = createItem('')
         new_name = 'test2'
-        data = {'item_id': item.id, 'name': new_name}
 
-        self.call_rename(data)
+        self.call_rename(item.id, new_name)
         item = Item.objects.get(pk=item.id)
         self.assertEqual(item.name, new_name)
         self.assertEqual(item.needed, default_item['needed'])
@@ -696,70 +691,69 @@ class RenameTests(TestCase):
     def test_rename_to_empty_name(self):
         item = createItem('test')
         new_name = ''
-        data = {'item_id': item.id, 'name': new_name}
 
-        self.call_rename(data)
+        self.call_rename(item.id, new_name)
         item = Item.objects.get(pk=item.id)
         self.assertEqual(item.name, new_name)
         self.assertEqual(item.needed, default_item['needed'])
         self.assertEqual(item.bought, default_item['bought'])
         self.assertEqual(item.category.name, default_item['category'])
 
-    def test_rename_with_empty_data(self):
-        data = {}
-
-        response = self.client.post(reverse('rename'), data=data)
-        self.assertEqual(response.status_code, 400)
-
     def test_rename_without_name_param(self):
-        item = createItem('test')
-        data = {'item_id': item.id}
+        self.client.login(**test_user)
+        name = 'test'
+        item = createItem(name)
 
-        response = self.client.post(reverse('rename'), data=data)
-        self.assertEqual(response.status_code, 400)
+        response = self.client.patch(reverse('item_detail', args=[item.id]))
+        self.assertEqual(response.status_code, 200)
+        item = Item.objects.get(pk=item.id)
+        self.assertEqual(item.name, name)
+        self.assertEqual(item.needed, default_item['needed'])
+        self.assertEqual(item.bought, default_item['bought'])
+        self.assertEqual(item.category.name, default_item['category'])
 
-    def test_rename_without_id_param(self):
-        data = {'name': 'test2'}
+    def test_rename_not_logged_in(self):
+        name = 'test'
+        item = createItem(name)
 
-        response = self.client.post(reverse('rename'), data=data)
-        self.assertEqual(response.status_code, 400)
+        response = self.client.patch(
+            reverse('item_detail', args=[item.id]),
+            data={'name': 'test2'}
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(item.name, name)
 
     def test_rename_not_existing_item(self):
-        data = {'item_id': -1, 'name': 'test2'}
-
-        response = self.client.post(reverse('rename'), data=data)
+        self.client.login(**test_user)
+        response = self.client.patch(
+            reverse('item_detail', args=[0]),
+            data={'name': 'test2'}
+        )
         self.assertEqual(response.status_code, 404)
 
-    def test_rename_item_get_method(self):
-        item = createItem('test')
-        data = {'item_id': item.id, 'name': 'test2'}
 
-        response = self.client.get(reverse('rename'), data=data)
-        self.assertEqual(response.status_code, 405)
-
-
-class ChangeCategoryTests(TestCase):
+class ChangeCategoryTests(APITestCase):
     def setUp(self):
         self.new_category_name = 'test2'
         Category.objects.create(
             name=self.new_category_name,
             full_name='Test category 2'
         )
+        User.objects.create_user(**test_user)
 
-    def call_change_category(self, data):
-        response = self.client.post(reverse('change_category'), data=data)
+    def call_change_category(self, itemId, category):
+        self.client.login(**test_user)
+        response = self.client.patch(
+            reverse('item_detail', args=[itemId]),
+            data={'category': category}
+        )
         self.assertEqual(response.status_code, 200)
-
-        response_dict = json.loads(response.content.decode("utf-8"))
-        self.assertEqual(response_dict['status'], 'ok')
-        return response
 
     def test_change_category_default(self):
         name = 'test'
         item = createItem(name)
-        data = {'item_id': item.id, 'category': self.new_category_name}
 
-        self.call_change_category(data)
+        self.call_change_category(item.id, self.new_category_name)
         item = Item.objects.get(pk=item.id)
         self.assertEqual(item.category.name, self.new_category_name)
         self.assertEqual(item.name, name)
@@ -769,9 +763,8 @@ class ChangeCategoryTests(TestCase):
     def test_change_category_needed(self):
         name = 'test'
         item = createItem(name, needed=True)
-        data = {'item_id': item.id, 'category': self.new_category_name}
 
-        self.call_change_category(data)
+        self.call_change_category(item.id, self.new_category_name)
         item = Item.objects.get(pk=item.id)
         self.assertEqual(item.category.name, self.new_category_name)
         self.assertEqual(item.name, name)
@@ -781,9 +774,8 @@ class ChangeCategoryTests(TestCase):
     def test_change_category_not_needed(self):
         name = 'test'
         item = createItem(name, needed=False)
-        data = {'item_id': item.id, 'category': self.new_category_name}
 
-        self.call_change_category(data)
+        self.call_change_category(item.id, self.new_category_name)
         item = Item.objects.get(pk=item.id)
         self.assertEqual(item.category.name, self.new_category_name)
         self.assertEqual(item.name, name)
@@ -793,9 +785,8 @@ class ChangeCategoryTests(TestCase):
     def test_change_category_bought(self):
         name = 'test'
         item = createItem(name, bought=True)
-        data = {'item_id': item.id, 'category': self.new_category_name}
 
-        self.call_change_category(data)
+        self.call_change_category(item.id, self.new_category_name)
         item = Item.objects.get(pk=item.id)
         self.assertEqual(item.category.name, self.new_category_name)
         self.assertEqual(item.name, name)
@@ -805,9 +796,8 @@ class ChangeCategoryTests(TestCase):
     def test_change_category_not_bought(self):
         name = 'test'
         item = createItem(name, bought=False)
-        data = {'item_id': item.id, 'category': self.new_category_name}
 
-        self.call_change_category(data)
+        self.call_change_category(item.id, self.new_category_name)
         item = Item.objects.get(pk=item.id)
         self.assertEqual(item.category.name, self.new_category_name)
         self.assertEqual(item.name, name)
@@ -817,50 +807,61 @@ class ChangeCategoryTests(TestCase):
     def test_change_category_item_with_empty_name(self):
         name = ''
         item = createItem(name)
-        data = {'item_id': item.id, 'category': self.new_category_name}
 
-        self.call_change_category(data)
+        self.call_change_category(item.id, self.new_category_name)
         item = Item.objects.get(pk=item.id)
         self.assertEqual(item.category.name, self.new_category_name)
         self.assertEqual(item.name, name)
         self.assertEqual(item.needed, default_item['needed'])
         self.assertEqual(item.bought, default_item['bought'])
 
-    def test_change_category_with_empty_data(self):
-        data = {}
-
-        response = self.client.post(reverse('change_category'), data=data)
-        self.assertEqual(response.status_code, 400)
-
     def test_change_category_without_category_param(self):
+        self.client.login(**test_user)
         item = createItem('test')
-        data = {'item_id': item.id}
+        old_category_name = item.category.name
 
-        response = self.client.post(reverse('change_category'), data=data)
-        self.assertEqual(response.status_code, 400)
+        response = self.client.patch(
+            reverse('item_detail', args=[item.id]),
+            data={}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(item.category.name, old_category_name)
 
-    def test_change_category_without_id_param(self):
-        data = {'category': self.new_category_name}
+    def test_change_category_not_logged_in(self):
+        item = createItem('test')
+        old_category_name = item.category.name
 
-        response = self.client.post(reverse('change_category'), data=data)
-        self.assertEqual(response.status_code, 400)
+        response = self.client.patch(
+            reverse('item_detail', args=[item.id]),
+            data={}
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(item.category.name, old_category_name)
 
     def test_change_category_not_existing_item(self):
-        data = {'item_id': -1, 'category': self.new_category_name}
-
-        response = self.client.post(reverse('change_category'), data=data)
+        self.client.login(**test_user)
+        response = self.client.patch(
+            reverse('item_detail', args=[0]),
+            data={'category': self.new_category_name}
+        )
         self.assertEqual(response.status_code, 404)
 
     def test_change_category_not_existing_category(self):
+        self.client.login(**test_user)
         item = createItem('test')
-        data = {'item_id': item.id, 'category': 'lorem'}
+        old_category_name = item.category.name
 
-        response = self.client.post(reverse('change_category'), data=data)
+        response = self.client.patch(
+            reverse('item_detail', args=[item.id]),
+            data={'category': 'lorem'}
+        )
         self.assertEqual(response.status_code, 404)
+        self.assertEqual(item.category.name, old_category_name)
 
-    def test_change_category_item_get_method(self):
+    def test_change_category_with_empty_category(self):
+        self.client.login(**test_user)
         item = createItem('test')
-        data = {'item_id': item.id, 'category': self.new_category_name}
+        old_category_name = item.category.name
 
-        response = self.client.get(reverse('change_category'), data=data)
-        self.assertEqual(response.status_code, 405)
+        self.call_change_category(item.id, '')
+        self.assertEqual(item.category.name, old_category_name)
