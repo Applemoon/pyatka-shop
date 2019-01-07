@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Button, Form, FormGroup, InputGroup, FormControl, ControlLabel } from 'react-bootstrap';
+import { Button, Form, FormGroup, InputGroup, FormControl } from 'react-bootstrap';
 
 import Actions from '../actions/Actions';
 import CategoriesSelector from './CategoriesSelector.jsx';
@@ -61,7 +61,6 @@ class AddItemForm extends PureComponent {
 			handleSubmit,
 			handleInputChange,
 			handleSelectorChange,
-			handleCheckboxChange,
 		} = this;
 		return (
 			<Form inline onSubmit={handleSubmit}>

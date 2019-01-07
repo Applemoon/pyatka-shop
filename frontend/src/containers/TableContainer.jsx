@@ -44,8 +44,7 @@ const mapDispatchToProps = dispatch => ({
 	setBought: bindActionCreators(Actions.setBought, dispatch),
 	setNotBought: bindActionCreators(Actions.setNotBought, dispatch),
 	remove: bindActionCreators(Actions.remove, dispatch),
-	rename: bindActionCreators(Actions.rename, dispatch),
-	changeCategory: bindActionCreators(Actions.changeCategory, dispatch),
+	edit: bindActionCreators(Actions.edit, dispatch),
 });
 
 export default connect(

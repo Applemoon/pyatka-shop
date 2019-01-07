@@ -19,10 +19,10 @@ class Api {
 		return axios.get('/ajax/categories');
 	}
 
-	static addItem(name, needed, category) {
+	static addItem(name, category, needed) {
 		return axios.post(
 			'/ajax/items',
-			getURIParams({ name: name, needed: needed, category: category })
+			getURIParams({ name: name, category: category, needed: needed })
 		);
 	}
 
@@ -46,12 +46,11 @@ class Api {
 		return axios.delete('/ajax/items/' + id);
 	}
 
-	static rename(id, name) {
-		return axios.patch(`/ajax/items/${id}`, getURIParams({ name: name }));
-	}
-
-	static changeCategory(id, category) {
-		return axios.patch(`/ajax/items/${id}`, getURIParams({ category: category }));
+	static edit(id, name, category, needed) {
+		return axios.patch(
+			`/ajax/items/${id}`,
+			getURIParams({ name: name, category: category, needed: needed })
+		);
 	}
 
 	static setAllNotBought() {

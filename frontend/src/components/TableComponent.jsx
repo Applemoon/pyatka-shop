@@ -12,8 +12,7 @@ const TableComponent = ({
 	setBought,
 	setNotBought,
 	remove,
-	rename,
-	changeCategory,
+	edit,
 	categories,
 }) =>
 	!items.length ? (
@@ -31,8 +30,7 @@ const TableComponent = ({
 						setBought={setBought}
 						setNotBought={setNotBought}
 						remove={remove}
-						rename={rename}
-						changeCategory={changeCategory}
+						edit={edit}
 						categories={categories}
 					/>
 				))}
@@ -54,8 +52,7 @@ TableComponent.propTypes = {
 	setBought: PropTypes.func.isRequired,
 	setNotBought: PropTypes.func.isRequired,
 	remove: PropTypes.func.isRequired,
-	rename: PropTypes.func.isRequired,
-	changeCategory: PropTypes.func.isRequired,
+	edit: PropTypes.func.isRequired,
 	categories: PropTypes.arrayOf(
 		PropTypes.shape({
 			name: PropTypes.string.isRequired,

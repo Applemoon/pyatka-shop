@@ -10,9 +10,6 @@ export const SET_NOT_BOUGHT = 'SET_NOT_BOUGHT';
 
 export const ADD_ITEM = 'ADD_ITEM';
 export const REMOVE = 'REMOVE';
-export const RENAME = 'RENAME';
-
-export const CHANGE_CATEGORY = 'CHANGE_CATEGORY';
 
 export const MODE_1_SELECTED = 'MODE_1_SELECTED';
 export const MODE_2_SELECTED = 'MODE_2_SELECTED';
@@ -117,7 +114,7 @@ class Actions {
 		needed = DEFAULT_ITEM.needed,
 		category = DEFAULT_ITEM.category
 	) => dispatch => {
-		Api.addItem(name, needed, category)
+		Api.addItem(name, category, needed)
 			.then(result => {
 				dispatch({
 					type: ADD_ITEM,
@@ -154,31 +151,19 @@ class Actions {
 		});
 	};
 
-	static rename = (id, name) => dispatch => {
+	static edit = (id, name, category, needed) => dispatch => {
 		dispatch({
-			type: RENAME,
+			type: EDIT_ITEM,
 			id: id,
 			name: name,
-		});
-
-		Api.rename(id, name).catch(err => {
-			!err.response
-				? dispatch({ type: NOW_OFFLINE })
-				: dispatch({ type: REQUEST_FAILED, method: 'rename', message: err });
-		});
-	};
-
-	static changeCategory = (id, category) => dispatch => {
-		dispatch({
-			type: CHANGE_CATEGORY,
-			id: id,
 			category: category,
+			needed: needed,
 		});
 
-		Api.changeCategory(id, category).catch(err => {
+		Api.edit(id, name, category, needed).catch(err => {
 			!err.response
 				? dispatch({ type: NOW_OFFLINE })
-				: dispatch({ type: REQUEST_FAILED, method: 'changeCategory', message: err });
+				: dispatch({ type: REQUEST_FAILED, method: 'edit', message: err });
 		});
 	};
 

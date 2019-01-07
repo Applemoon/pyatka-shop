@@ -6,8 +6,7 @@ import {
 	SET_NOT_BOUGHT,
 	ADD_ITEM,
 	REMOVE,
-	RENAME,
-	CHANGE_CATEGORY,
+	EDIT_ITEM,
 	MODE_1_SELECTED,
 	MODE_2_SELECTED,
 	NOW_OFFLINE,
@@ -89,18 +88,14 @@ const reducer = (state = initialState, action) => {
 				}),
 			});
 		}
-		case RENAME: {
+		case EDIT_ITEM: {
 			return Object.assign({}, state, {
 				items: state.items.map(item => {
-					if (item.id == action.id) item.name = action.name;
-					return item;
-				}),
-			});
-		}
-		case CHANGE_CATEGORY: {
-			return Object.assign({}, state, {
-				items: state.items.map(item => {
-					if (item.id == action.id) item.category = action.category;
+					if (item.id == action.id) {
+						item.name = action.name;
+						item.category = action.category;
+						item.needed = action.needed;
+					}
 					return item;
 				}),
 			});
