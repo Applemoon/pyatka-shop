@@ -38,26 +38,21 @@ class EditItemPopup extends PureComponent {
 		this.setState({ name: event.target.value });
 	};
 
-	handleOk = () => {
-		const { name, category, needed } = this.state;
-		this.props.handleEditingOk(name, category, needed);
-	};
-
 	render() {
-		const { name, needed, show, handleEditingOk, handleEditingCancel, categories } = this.props;
-		const { category } = this.state; // not from props for element updating
+		const { show, handleEditingOk, handleEditingCancel, categories } = this.props;
+		const defaultName = this.props.name;
+		const { name, category, needed } = this.state;
 		const {
 			handleClose,
 			handleNeededBtnClick,
 			handleInputChange,
-			handleOk,
 			handleCategoryClick,
 		} = this;
 
 		return (
 			<Modal show={show} onHide={handleEditingCancel}>
 				<Modal.Header closeButton>
-					<Modal.Title>{'Редактировать "' + name + '"'}</Modal.Title>
+					<Modal.Title>{'Редактировать "' + defaultName + '"'}</Modal.Title>
 				</Modal.Header>
 
 				<Modal.Body>
@@ -97,7 +92,9 @@ class EditItemPopup extends PureComponent {
 				</Modal.Body>
 				<Modal.Footer>
 					<Button onClick={handleEditingCancel}>Отмена</Button>
-					<Button bsStyle="success" onClick={handleOk}>
+					<Button
+						bsStyle="success"
+						onClick={event => handleEditingOk(name, category, needed)}>
 						OK
 					</Button>
 				</Modal.Footer>
