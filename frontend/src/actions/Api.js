@@ -11,11 +11,7 @@ function getURIParams(params) {
 }
 
 class Api {
-	static loadItems() {
-		return axios.get('/ajax/items');
-	}
-
-	static loadCategories() {
+	static loadData() {
 		return axios.get('/ajax/categories');
 	}
 

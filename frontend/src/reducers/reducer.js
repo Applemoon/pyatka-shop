@@ -1,5 +1,5 @@
 import {
-	REQUEST_ITEMS_SUCCEEDED,
+	REQUEST_DATA_SUCCEEDED,
 	SET_NEEDED,
 	SET_NOT_NEEDED,
 	SET_BOUGHT,
@@ -11,7 +11,6 @@ import {
 	MODE_2_SELECTED,
 	NOW_OFFLINE,
 	ADD_ITEM_OFFLINE,
-	REQUEST_CATEGORIES_SUCCEEDED,
 	REQUEST_FAILED,
 } from '../actions/Actions';
 
@@ -26,14 +25,19 @@ const initialState = {
 
 const reducer = (state = initialState, action) => {
 	switch (action.type) {
-		case REQUEST_CATEGORIES_SUCCEEDED: {
+		case REQUEST_DATA_SUCCEEDED: {
+			const categories = action.data.sort((a, b) => a.position - b.position);
+			const items = categories
+				.map(category => {
+					const item_set = category.item_set;
+					delete category.item_set
+					return item_set;
+				})
+				.flat();
+
 			return Object.assign({}, state, {
-				categories: action.categories.sort((a, b) => a.position - b.position),
-			});
-		}
-		case REQUEST_ITEMS_SUCCEEDED: {
-			return Object.assign({}, state, {
-				items: action.items,
+				categories: categories,
+				items: items,
 				loading: false,
 			});
 		}

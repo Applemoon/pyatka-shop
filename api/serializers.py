@@ -2,12 +2,6 @@ from rest_framework import serializers, exceptions
 from api.models import Category, Item
 
 
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = '__all__'
-
-
 class ItemSerializer(serializers.ModelSerializer):
     name = serializers.CharField(
         required=False,
@@ -46,3 +40,11 @@ class ItemSerializer(serializers.ModelSerializer):
             setattr(instance, validated_field, value)
         instance.save()
         return instance
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    item_set = ItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Category
+        fields = '__all__'

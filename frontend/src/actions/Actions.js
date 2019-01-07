@@ -1,6 +1,6 @@
 import Api from './Api';
 
-export const REQUEST_ITEMS_SUCCEEDED = 'REQUEST_ITEMS_SUCCEEDED';
+export const REQUEST_DATA_SUCCEEDED = 'REQUEST_DATA_SUCCEEDED';
 
 export const SET_NEEDED = 'SET_NEEDED';
 export const SET_NOT_NEEDED = 'SET_NOT_NEEDED';
@@ -19,7 +19,6 @@ export const ADD_ITEM_OFFLINE = 'ADD_ITEM_OFFLINE';
 
 export const EDIT_ITEM = 'EDIT_ITEM';
 
-export const REQUEST_CATEGORIES_SUCCEEDED = 'REQUEST_CATEGORIES_SUCCEEDED';
 
 export const REQUEST_FAILED = 'REQUEST_FAILED';
 
@@ -31,29 +30,16 @@ const DEFAULT_ITEM = {
 };
 
 class Actions {
-	static loadCategories = () => dispatch => {
-		Api.loadCategories()
+	static loadData = () => dispatch => {
+		Api.loadData()
 			.then(function(result) {
 				return dispatch({
-					type: REQUEST_CATEGORIES_SUCCEEDED,
-					categories: result.data,
+					type: REQUEST_DATA_SUCCEEDED,
+					data: result.data,
 				});
 			})
 			.catch(err => {
-				dispatch({ type: REQUEST_FAILED, method: 'loadCategories', message: err });
-			});
-	};
-
-	static loadItems = () => dispatch => {
-		Api.loadItems()
-			.then(function(result) {
-				return dispatch({
-					type: REQUEST_ITEMS_SUCCEEDED,
-					items: result.data,
-				});
-			})
-			.catch(err => {
-				dispatch({ type: REQUEST_FAILED, method: 'loadItems', message: err });
+				dispatch({ type: REQUEST_FAILED, method: 'loadData', message: err });
 			});
 	};
 
