@@ -66,7 +66,17 @@ class Item extends PureComponent {
 	};
 
 	render() {
-		const { name, needed, bought, id, category, categories, mode, remove } = this.props;
+		const {
+			name,
+			needed,
+			bought,
+			id,
+			category,
+			categories,
+			mode,
+			remove,
+			setNotNeeded,
+		} = this.props;
 		const { style, editStart, handleEditingOk, handleEditingCancel, handleNameClick } = this;
 		const editing = this.state.editing;
 
@@ -95,6 +105,13 @@ class Item extends PureComponent {
 					<td>
 						<Button bsStyle="warning" onClick={() => remove(id)}>
 							X
+						</Button>
+					</td>
+				) : null}
+				{mode === 2 ? (
+					<td>
+						<Button bsStyle="warning" onClick={() => setNotNeeded(id)}>
+							-
 						</Button>
 					</td>
 				) : null}
