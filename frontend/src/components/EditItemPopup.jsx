@@ -42,12 +42,7 @@ class EditItemPopup extends PureComponent {
 		const { show, handleEditingOk, handleEditingCancel, categories } = this.props;
 		const defaultName = this.props.name;
 		const { name, category, needed } = this.state;
-		const {
-			handleClose,
-			handleNeededBtnClick,
-			handleInputChange,
-			handleCategoryClick,
-		} = this;
+		const { handleClose, handleNeededBtnClick, handleInputChange, handleCategoryClick } = this;
 
 		return (
 			<Modal show={show} onHide={handleEditingCancel}>

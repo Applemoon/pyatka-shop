@@ -5,10 +5,7 @@ import { ControlLabel, FormControl } from 'react-bootstrap';
 const CategoriesSelector = ({ onSelectChange, category, categories }) => (
 	<div>
 		<ControlLabel>Категория:</ControlLabel>{' '}
-		<FormControl
-			componentClass="select"
-			onChange={onSelectChange}
-			value={category}>
+		<FormControl componentClass="select" onChange={onSelectChange} value={category}>
 			{categories.map(category => (
 				<option value={category.name} key={category.name}>
 					{category.full_name}

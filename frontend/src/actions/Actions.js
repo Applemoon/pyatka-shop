@@ -19,7 +19,6 @@ export const ADD_ITEM_OFFLINE = 'ADD_ITEM_OFFLINE';
 
 export const EDIT_ITEM = 'EDIT_ITEM';
 
-
 export const REQUEST_FAILED = 'REQUEST_FAILED';
 
 const DEFAULT_ITEM = {
@@ -32,8 +31,8 @@ const DEFAULT_ITEM = {
 class Actions {
 	static loadData = () => dispatch => {
 		Api.loadData()
-			.then(function(result) {
-				return dispatch({
+			.then(result => {
+				dispatch({
 					type: REQUEST_DATA_SUCCEEDED,
 					data: result.data,
 				});
