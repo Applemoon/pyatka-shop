@@ -50,7 +50,7 @@ class Api {
 	}
 
 	static setAllNotBought() {
-		return axios.post('/ajax/all_not_bought');
+		return axios.patch('/ajax/items/all-not-bought');
 	}
 }
 

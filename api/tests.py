@@ -48,7 +48,7 @@ class CategoriesTests(APITestCase):
 
     def call_categories(self):
         self.client.login(**test_user)
-        response = self.client.get(reverse('categories'))
+        response = self.client.get(reverse('category-list'))
         self.assertEqual(response.status_code, 200)
         return response.data
 
@@ -67,13 +67,13 @@ class CategoriesTests(APITestCase):
         self.assertEqual(len(response_arr), init_categories_count)
 
     def test_call_categories_not_logged_in(self):
-        response = self.client.get(reverse('categories'))
+        response = self.client.get(reverse('category-list'))
         self.assertEqual(response.status_code, 403)
 
     def test_call_categories_post_method(self):
         self.client.login(**test_user)
 
-        response = self.client.post(reverse('categories'))
+        response = self.client.post(reverse('category-list'))
         self.assertEqual(response.status_code, 405)
 
 
@@ -87,7 +87,7 @@ class ItemsGetTests(APITestCase):
 
     def call_items_get(self):
         self.client.login(**test_user)
-        response = self.client.get(reverse('items'))
+        response = self.client.get(reverse('item-list'))
         self.assertEqual(response.status_code, 200)
         return response.data
 
@@ -109,7 +109,7 @@ class ItemsGetTests(APITestCase):
             self.assertEqual(item.bought, resp_item['bought'])
 
     def test_items_get_not_logged_in(self):
-        response = self.client.get(reverse('items'))
+        response = self.client.get(reverse('item-list'))
         self.assertEqual(response.status_code, 403)
 
 
@@ -123,7 +123,7 @@ class ItemsPostTests(APITestCase):
 
     def call_items_post(self, data):
         self.client.login(**test_user)
-        response = self.client.post(reverse('items'), data)
+        response = self.client.post(reverse('item-list'), data)
         self.assertEqual(response.status_code, 201)
         return response.data
 
@@ -237,7 +237,7 @@ class ItemsPostTests(APITestCase):
         data = {'name': 'test', 'needed': 'test2'}
         init_items_count = Item.objects.count()
 
-        response = self.client.post(reverse('items'), data)
+        response = self.client.post(reverse('item-list'), data)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(Item.objects.count(), init_items_count)
 
@@ -252,7 +252,7 @@ class ItemsPostTests(APITestCase):
         data = {'name': name}
         init_items_count = Item.objects.count()
 
-        response = self.client.post(reverse('items'), data)
+        response = self.client.post(reverse('item-list'), data)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(Item.objects.count(), init_items_count)
 
@@ -261,7 +261,7 @@ class ItemsPostTests(APITestCase):
         data = {'name': 'test', 'category': 'wrong'}
         init_items_count = Item.objects.count()
 
-        response = self.client.post(reverse('items'), data)
+        response = self.client.post(reverse('item-list'), data)
         self.assertEqual(response.status_code, 404)
         self.assertEqual(Item.objects.count(), init_items_count)
 
@@ -269,7 +269,7 @@ class ItemsPostTests(APITestCase):
         data = {'name': 'test'}
         init_items_count = Item.objects.count()
 
-        response = self.client.post(reverse('items'), data=data)
+        response = self.client.post(reverse('item-list'), data=data)
         self.assertEqual(response.status_code, 403)
         self.assertEqual(Item.objects.count(), init_items_count)
 
@@ -279,7 +279,7 @@ class ItemsPostTests(APITestCase):
         data = {'name': name}
         init_items_count = Item.objects.count()
 
-        response = self.client.put(reverse('items'), data)
+        response = self.client.put(reverse('item-list'), data)
         self.assertEqual(response.status_code, 405)
         self.assertEqual(Item.objects.count(), init_items_count)
 
@@ -291,7 +291,7 @@ class SetNeededTests(APITestCase):
     def call_set_needed(self, itemId):
         self.client.login(**test_user)
         response = self.client.patch(
-            reverse('item_detail', args=[itemId]),
+            reverse('item-detail', args=[itemId]),
             data={'needed': True}
         )
         self.assertEqual(response.status_code, 200)
@@ -318,7 +318,7 @@ class SetNeededTests(APITestCase):
         item = createItem('test')
 
         response = self.client.patch(
-            reverse('item_detail', args=[item.id]),
+            reverse('item-detail', args=[item.id]),
             data={'needed': True}
         )
         self.assertEqual(response.status_code, 403)
@@ -327,7 +327,7 @@ class SetNeededTests(APITestCase):
     def test_set_needed_not_existing_item(self):
         self.client.login(**test_user)
         response = self.client.patch(
-            reverse('item_detail', args=[0]),
+            reverse('item-detail', args=[0]),
             data={'needed': True}
         )
         self.assertEqual(response.status_code, 404)
@@ -340,7 +340,7 @@ class SetNotNeededTests(APITestCase):
     def call_set_not_needed(self, itemId):
         self.client.login(**test_user)
         response = self.client.patch(
-            reverse('item_detail', args=[itemId]),
+            reverse('item-detail', args=[itemId]),
             data={'needed': False}
         )
         self.assertEqual(response.status_code, 200)
@@ -367,7 +367,7 @@ class SetNotNeededTests(APITestCase):
         item = createItem('test')
 
         response = self.client.patch(
-            reverse('item_detail', args=[item.id]),
+            reverse('item-detail', args=[item.id]),
             data={'needed': False}
         )
         self.assertEqual(response.status_code, 403)
@@ -376,7 +376,7 @@ class SetNotNeededTests(APITestCase):
     def test_set_not_needed_not_existing_item(self):
         self.client.login(**test_user)
         response = self.client.patch(
-            reverse('item_detail', args=[0]),
+            reverse('item-detail', args=[0]),
             data={'needed': False}
         )
         self.assertEqual(response.status_code, 404)
@@ -389,7 +389,7 @@ class SetBoughtTests(APITestCase):
     def call_set_bought(self, itemId):
         self.client.login(**test_user)
         response = self.client.patch(
-            reverse('item_detail', args=[itemId]),
+            reverse('item-detail', args=[itemId]),
             data={'bought': True}
         )
         self.assertEqual(response.status_code, 200)
@@ -416,7 +416,7 @@ class SetBoughtTests(APITestCase):
         item = createItem('test')
 
         response = self.client.patch(
-            reverse('item_detail', args=[item.id]),
+            reverse('item-detail', args=[item.id]),
             data={'bought': True}
         )
         self.assertEqual(response.status_code, 403)
@@ -425,7 +425,7 @@ class SetBoughtTests(APITestCase):
     def test_set_bought_not_existing_item(self):
         self.client.login(**test_user)
         response = self.client.patch(
-            reverse('item_detail', args=[0]),
+            reverse('item-detail', args=[0]),
             data={'bought': True}
         )
         self.assertEqual(response.status_code, 404)
@@ -438,7 +438,7 @@ class SetNotBoughtTests(APITestCase):
     def call_set_not_bought(self, itemId):
         self.client.login(**test_user)
         response = self.client.patch(
-            reverse('item_detail', args=[itemId]),
+            reverse('item-detail', args=[itemId]),
             data={'bought': False}
         )
         self.assertEqual(response.status_code, 200)
@@ -465,7 +465,7 @@ class SetNotBoughtTests(APITestCase):
         item = createItem('test')
 
         response = self.client.patch(
-            reverse('item_detail', args=[item.id]),
+            reverse('item-detail', args=[item.id]),
             data={'bought': False}
         )
         self.assertEqual(response.status_code, 403)
@@ -474,7 +474,7 @@ class SetNotBoughtTests(APITestCase):
     def test_set_not_bought_not_existing_item(self):
         self.client.login(**test_user)
         response = self.client.patch(
-            reverse('item_detail', args=[0]),
+            reverse('item-detail', args=[0]),
             data={'bought': False}
         )
         self.assertEqual(response.status_code, 404)
@@ -486,9 +486,8 @@ class SetAllNotBoughtTests(APITestCase):
 
     def call_set_all_not_bought(self):
         self.client.login(**test_user)
-        response = self.client.post(reverse('all_not_bought'))
+        response = self.client.patch(reverse('item-all-not-bought'))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, {"status": "ok"})
 
     def test_set_all_not_bought_default(self):
         createItem('test', bought=True)
@@ -522,9 +521,8 @@ class SetAllNotBoughtTests(APITestCase):
             createItem('test', bought=True),
         ]
 
-        response = self.client.post(reverse('all_not_bought'))
-        # self.assertEqual(response.status_code, 403)  # TODO after DRF
-        self.assertEqual(response.status_code, 302)
+        response = self.client.post(reverse('item-all-not-bought'))
+        self.assertEqual(response.status_code, 403)
         for item in items:
             self.assertTrue(item.bought)
 
@@ -532,7 +530,7 @@ class SetAllNotBoughtTests(APITestCase):
         self.client.login(**test_user)
         createItem('test', bought=True)
 
-        response = self.client.get(reverse('all_not_bought'))
+        response = self.client.get(reverse('item-all-not-bought'))
         self.assertEqual(response.status_code, 405)
 
 
@@ -542,7 +540,7 @@ class RemoveTests(APITestCase):
 
     def call_remove_item(self, item_id):
         self.client.login(**test_user)
-        response = self.client.delete(reverse('item_detail', args=[item_id]))
+        response = self.client.delete(reverse('item-detail', args=[item_id]))
         self.assertEqual(response.status_code, 204)
 
     def test_remove_default_item(self):
@@ -593,12 +591,12 @@ class RemoveTests(APITestCase):
     def test_remove_not_logged_in(self):
         item = createItem('test')
 
-        response = self.client.delete(reverse('item_detail', args=[item.id]))
+        response = self.client.delete(reverse('item-detail', args=[item.id]))
         self.assertEqual(response.status_code, 403)
 
     def test_remove_not_existing_item(self):
         self.client.login(**test_user)
-        response = self.client.delete(reverse('item_detail', args=[0]))
+        response = self.client.delete(reverse('item-detail', args=[0]))
         self.assertEqual(response.status_code, 404)
 
     def test_double_remove(self):
@@ -606,7 +604,7 @@ class RemoveTests(APITestCase):
         item = createItem('test')
         self.call_remove_item(item.id)
 
-        response = self.client.delete(reverse('item_detail', args=[item.id]))
+        response = self.client.delete(reverse('item-detail', args=[item.id]))
         self.assertEqual(response.status_code, 404)
 
 
@@ -617,7 +615,7 @@ class RenameTests(APITestCase):
     def call_rename(self, item_id, name):
         self.client.login(**test_user)
         response = self.client.patch(
-            reverse('item_detail', args=[item_id]),
+            reverse('item-detail', args=[item_id]),
             data={'name': name}
         )
         self.assertEqual(response.status_code, 200)
@@ -704,7 +702,7 @@ class RenameTests(APITestCase):
         name = 'test'
         item = createItem(name)
 
-        response = self.client.patch(reverse('item_detail', args=[item.id]))
+        response = self.client.patch(reverse('item-detail', args=[item.id]))
         self.assertEqual(response.status_code, 200)
         item = Item.objects.get(pk=item.id)
         self.assertEqual(item.name, name)
@@ -717,7 +715,7 @@ class RenameTests(APITestCase):
         item = createItem(name)
 
         response = self.client.patch(
-            reverse('item_detail', args=[item.id]),
+            reverse('item-detail', args=[item.id]),
             data={'name': 'test2'}
         )
         self.assertEqual(response.status_code, 403)
@@ -726,7 +724,7 @@ class RenameTests(APITestCase):
     def test_rename_not_existing_item(self):
         self.client.login(**test_user)
         response = self.client.patch(
-            reverse('item_detail', args=[0]),
+            reverse('item-detail', args=[0]),
             data={'name': 'test2'}
         )
         self.assertEqual(response.status_code, 404)
@@ -744,7 +742,7 @@ class ChangeCategoryTests(APITestCase):
     def call_change_category(self, itemId, category):
         self.client.login(**test_user)
         response = self.client.patch(
-            reverse('item_detail', args=[itemId]),
+            reverse('item-detail', args=[itemId]),
             data={'category': category}
         )
         self.assertEqual(response.status_code, 200)
@@ -821,7 +819,7 @@ class ChangeCategoryTests(APITestCase):
         old_category_name = item.category.name
 
         response = self.client.patch(
-            reverse('item_detail', args=[item.id]),
+            reverse('item-detail', args=[item.id]),
             data={}
         )
         self.assertEqual(response.status_code, 200)
@@ -832,7 +830,7 @@ class ChangeCategoryTests(APITestCase):
         old_category_name = item.category.name
 
         response = self.client.patch(
-            reverse('item_detail', args=[item.id]),
+            reverse('item-detail', args=[item.id]),
             data={}
         )
         self.assertEqual(response.status_code, 403)
@@ -841,7 +839,7 @@ class ChangeCategoryTests(APITestCase):
     def test_change_category_not_existing_item(self):
         self.client.login(**test_user)
         response = self.client.patch(
-            reverse('item_detail', args=[0]),
+            reverse('item-detail', args=[0]),
             data={'category': self.new_category_name}
         )
         self.assertEqual(response.status_code, 404)
@@ -852,7 +850,7 @@ class ChangeCategoryTests(APITestCase):
         old_category_name = item.category.name
 
         response = self.client.patch(
-            reverse('item_detail', args=[item.id]),
+            reverse('item-detail', args=[item.id]),
             data={'category': 'lorem'}
         )
         self.assertEqual(response.status_code, 404)
