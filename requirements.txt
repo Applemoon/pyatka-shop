@@ -1,5 +1,6 @@
 django
+djangorestframework
+psycopg2-binary
 pep8
 tblib
 coverage
-djangorestframework

@@ -1,2 +1,2 @@
-uwsgi --ini uwsgi.ini > uwsgi.log 2>&
+uwsgi --ini uwsgi.ini > logs/uwsgi.log 2>&
 

@@ -1,8 +1,0 @@
-sqlite> select full_name, name, position from api_category;
-Прочее: вода, кондитерка, алкоголь, химия|other|7
-Фрукты|fruits|1
-Молочка, сыр|milk|2
-Мясо, рыба, яйца|meat|4
-Овощи|vegetables|5
-Крупы, макароны, хлеб|cereals|6
-Приправы, майонез, кетчуп, соль, масло, сахар|spices|3
