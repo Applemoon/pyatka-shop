@@ -43,7 +43,8 @@ def createItem(
 
 
 class CategoriesTests(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         User.objects.create_user(**test_user)
 
     def call_categories(self):
@@ -78,7 +79,8 @@ class CategoriesTests(APITestCase):
 
 
 class ItemsGetTests(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         Category.objects.create(
             name=default_item['category'],
             full_name='Test category'
@@ -114,7 +116,8 @@ class ItemsGetTests(APITestCase):
 
 
 class ItemsPostTests(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         Category.objects.create(
             name=default_item['category'],
             full_name='Test category'
@@ -285,7 +288,8 @@ class ItemsPostTests(APITestCase):
 
 
 class SetNeededTests(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         User.objects.create_user(**test_user)
 
     def call_set_needed(self, itemId):
@@ -334,7 +338,8 @@ class SetNeededTests(APITestCase):
 
 
 class SetNotNeededTests(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         User.objects.create_user(**test_user)
 
     def call_set_not_needed(self, itemId):
@@ -383,7 +388,8 @@ class SetNotNeededTests(APITestCase):
 
 
 class SetBoughtTests(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         User.objects.create_user(**test_user)
 
     def call_set_bought(self, itemId):
@@ -432,7 +438,8 @@ class SetBoughtTests(APITestCase):
 
 
 class SetNotBoughtTests(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         User.objects.create_user(**test_user)
 
     def call_set_not_bought(self, itemId):
@@ -481,7 +488,8 @@ class SetNotBoughtTests(APITestCase):
 
 
 class SetAllNotBoughtTests(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         User.objects.create_user(**test_user)
 
     def call_set_all_not_bought(self):
@@ -535,7 +543,8 @@ class SetAllNotBoughtTests(APITestCase):
 
 
 class RemoveTests(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         User.objects.create_user(**test_user)
 
     def call_remove_item(self, item_id):
@@ -609,7 +618,8 @@ class RemoveTests(APITestCase):
 
 
 class RenameTests(APITestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         User.objects.create_user(**test_user)
 
     def call_rename(self, item_id, name):
@@ -731,10 +741,11 @@ class RenameTests(APITestCase):
 
 
 class ChangeCategoryTests(APITestCase):
-    def setUp(self):
-        self.new_category_name = 'test2'
+    @classmethod
+    def setUpTestData(cls):
+        cls.new_category_name = 'test2'
         Category.objects.create(
-            name=self.new_category_name,
+            name=cls.new_category_name,
             full_name='Test category 2'
         )
         User.objects.create_user(**test_user)
