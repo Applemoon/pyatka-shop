@@ -30,19 +30,24 @@ class EditItemPopup extends PureComponent {
 		}
 	};
 
+	handleInputChange = event => {
+		this.setState({ name: event.target.value });
+	};
+
 	handleCategoryClick = event => {
 		this.setState({ category: event.target.value });
 	};
 
-	handleInputChange = event => {
-		this.setState({ name: event.target.value });
+	handleSubmit = event => {
+		event.preventDefault();
+		this.props.handleEditingOk(this.state.name, this.state.category, this.state.needed);
 	};
 
 	render() {
 		const { show, handleEditingOk, handleEditingCancel, categories } = this.props;
 		const defaultName = this.props.name;
 		const { name, category, needed } = this.state;
-		const { handleClose, handleNeededBtnClick, handleInputChange, handleCategoryClick } = this;
+		const { handleNeededBtnClick, handleInputChange, handleCategoryClick, handleSubmit } = this;
 
 		return (
 			<Modal show={show} onHide={handleEditingCancel}>
@@ -51,7 +56,7 @@ class EditItemPopup extends PureComponent {
 				</Modal.Header>
 
 				<Modal.Body>
-					<Form inline onSubmit={handleClose}>
+					<Form onSubmit={handleSubmit}>
 						<FormGroup>
 							<InputGroup>
 								<FormControl
