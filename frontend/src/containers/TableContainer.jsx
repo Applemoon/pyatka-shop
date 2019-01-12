@@ -18,8 +18,10 @@ class TableContainer extends PureComponent {
 
 		if (mode === 1) return items.sort(this.sortByCategory);
 
-		const notBought = items.filter(el => el.needed && !el.bought).sort(this.sortByCategory);
-		const bought = items.filter(el => el.needed && el.bought).sort(this.sortByCategory);
+		const notBought = items
+			.filter(item => item.needed && !item.bought)
+			.sort(this.sortByCategory);
+		const bought = items.filter(item => item.needed && item.bought).sort(this.sortByCategory);
 		return notBought.concat(bought);
 	}
 
@@ -31,7 +33,6 @@ class TableContainer extends PureComponent {
 const mapStateToProps = state => ({
 	items: state.items,
 	error: state.error,
-	mode: state.mode,
 	offline: state.offline,
 	loading: state.loading,
 	categories: state.categories,

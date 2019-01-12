@@ -3,10 +3,6 @@
 	font-size: 17px;
 }
 
-tr {
-	height: 51px;
-}
-
 .milk {
 }
 
@@ -44,6 +40,15 @@ tr {
 	color: grey;
 }
 
-table {
+.desktop-table-div {
 	width: 100%;
+	text-align: center;
+}
+
+.desktop-table-div:nth-child(1) {
+	margin-right: 15px;
+}
+
+.desktop-div {
+	display: flex;
 }

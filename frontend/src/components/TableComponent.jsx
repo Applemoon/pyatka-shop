@@ -18,12 +18,12 @@ const TableComponent = ({
 	!items.length ? (
 		<p>Список пуст</p>
 	) : (
-		<Table responsive>
+		<Table>
 			<tbody>
-				{items.map(el => (
+				{items.map(item => (
 					<Item
-						{...el}
-						key={el.id}
+						{...item}
+						key={item.id}
 						mode={mode}
 						setNeeded={setNeeded}
 						setNotNeeded={setNotNeeded}

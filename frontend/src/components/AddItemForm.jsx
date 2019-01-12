@@ -15,7 +15,7 @@ class AddItemForm extends PureComponent {
 		const { items, addItem, forceNeeded } = this.props;
 
 		event.preventDefault();
-		const foundItem = items.find(el => el.name.toLowerCase() === name.toLowerCase());
+		const foundItem = items.find(item => item.name.toLowerCase() === name.toLowerCase());
 		if (!foundItem) {
 			const final_needed = needed || forceNeeded;
 			addItem(name, final_needed, category);
@@ -56,12 +56,8 @@ class AddItemForm extends PureComponent {
 	render() {
 		const { name, category, needed } = this.state;
 		const { categories, forceNeeded } = this.props;
-		const {
-			inputId,
-			handleSubmit,
-			handleInputChange,
-			handleSelectorChange,
-		} = this;
+		const { inputId, handleSubmit, handleInputChange, handleSelectorChange } = this;
+
 		return (
 			<Form inline onSubmit={handleSubmit}>
 				<FormGroup>
