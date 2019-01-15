@@ -40,15 +40,22 @@
 	color: grey;
 }
 
-.desktop-table-div {
-	width: 100%;
-	text-align: center;
+.desktop-block {
+	display: flex;
 }
 
-.desktop-table-div:nth-child(1) {
+.desktop-block__block {
+	width: 100%;
+}
+
+.desktop-block__block:nth-child(1) {
 	margin-right: 15px;
 }
 
-.desktop-div {
-	display: flex;
+.desktop-block__header {
+	text-align: center;
+}
+
+table {
+	border: 2px solid grey;
 }
