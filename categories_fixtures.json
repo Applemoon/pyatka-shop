@@ -12,8 +12,8 @@
     "model": "api.category",
     "pk": 2,
     "fields": {
-        "name": "milk",
-        "full_name": "\u041c\u043e\u043b\u043e\u0447\u043a\u0430",
+        "name": "nuts",
+        "full_name": "\u041c\u044e\u0441\u043b\u0438, \u0445\u043b\u043e\u043f\u044c\u044f, \u043e\u0440\u0435\u0445\u0438",
         "position": 2
     }
 },
@@ -21,8 +21,8 @@
     "model": "api.category",
     "pk": 3,
     "fields": {
-        "name": "spices",
-        "full_name": "\u041f\u0440\u0438\u043f\u0440\u0430\u0432\u044b, \u043c\u0430\u0439\u043e\u043d\u0435\u0437, \u043a\u0435\u0442\u0447\u0443\u043f, \u0441\u043e\u043b\u044c, \u043c\u0430\u0441\u043b\u043e, \u0441\u0430\u0445\u0430\u0440",
+        "name": "milk",
+        "full_name": "\u041c\u043e\u043b\u043e\u0447\u043a\u0430",
         "position": 3
     }
 },
@@ -30,8 +30,8 @@
     "model": "api.category",
     "pk": 4,
     "fields": {
-        "name": "meat",
-        "full_name": "\u041c\u044f\u0441\u043e, \u0440\u044b\u0431\u0430, \u044f\u0439\u0446\u0430",
+        "name": "spices",
+        "full_name": "\u041f\u0440\u0438\u043f\u0440\u0430\u0432\u044b, \u043c\u0430\u0439\u043e\u043d\u0435\u0437, \u043a\u0435\u0442\u0447\u0443\u043f, \u0441\u043e\u043b\u044c, \u043c\u0430\u0441\u043b\u043e, \u0441\u0430\u0445\u0430\u0440",
         "position": 4
     }
 },
@@ -39,8 +39,8 @@
     "model": "api.category",
     "pk": 5,
     "fields": {
-        "name": "vegetables",
-        "full_name": "\u041e\u0432\u043e\u0449\u0438",
+        "name": "meat",
+        "full_name": "\u041c\u044f\u0441\u043e, \u0440\u044b\u0431\u0430, \u044f\u0439\u0446\u0430",
         "position": 5
     }
 },
@@ -48,14 +48,23 @@
     "model": "api.category",
     "pk": 6,
     "fields": {
-        "name": "cereals",
-        "full_name": "\u041a\u0440\u0443\u043f\u044b, \u043c\u0430\u043a\u0430\u0440\u043e\u043d\u044b, \u0445\u043b\u0435\u0431",
+        "name": "vegetables",
+        "full_name": "\u041e\u0432\u043e\u0449\u0438",
         "position": 6
     }
 },
 {
     "model": "api.category",
     "pk": 7,
+    "fields": {
+        "name": "cereals",
+        "full_name": "\u041a\u0440\u0443\u043f\u044b, \u043c\u0430\u043a\u0430\u0440\u043e\u043d\u044b, \u0445\u043b\u0435\u0431",
+        "position": 7
+    }
+},
+{
+    "model": "api.category",
+    "pk": 8,
     "fields": {
         "name": "other",
         "full_name": "\u041f\u0440\u043e\u0447\u0435\u0435: \u0432\u043e\u0434\u0430, \u043a\u043e\u043d\u0434\u0438\u0442\u0435\u0440\u043a\u0430, \u0430\u043b\u043a\u043e\u0433\u043e\u043b\u044c, \u0445\u0438\u043c\u0438\u044f",
