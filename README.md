@@ -15,5 +15,6 @@ pip install -r requirements.txt
 ./manage.py collectstatic --noinput
 npm install
 npm run build
-./run_uwsgi.sh
-
+cp uwsgi.ini /etc/uwsgi/sites-available/pyatka.ini
+ln -s /etc/uwsgi/sites-available/pyatka.ini /etc/uwsgi/sites-enabled
+systemctl start uwsgi
