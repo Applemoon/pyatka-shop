@@ -30,7 +30,7 @@ const reducer = (state = initialState, action) => {
 			const items = categories
 				.map(category => {
 					const item_set = category.item_set;
-					delete category.item_set
+					delete category.item_set;
 					return item_set;
 				})
 				.flat();

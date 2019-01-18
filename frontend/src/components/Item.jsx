@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Glyphicon } from 'react-bootstrap';
 
-import EditItemPopup from '../components/EditItemPopup.jsx';
+import EditItemPopup from './EditItemPopup.jsx';
 
 class Item extends PureComponent {
 	state = {
@@ -116,15 +116,17 @@ class Item extends PureComponent {
 					</td>
 				) : null}
 
-				<EditItemPopup
-					name={name}
-					category={category}
-					needed={needed}
-					show={editing}
-					handleEditingOk={handleEditingOk}
-					handleEditingCancel={handleEditingCancel}
-					categories={categories}
-				/>
+				{editing && (
+					<EditItemPopup
+						name={name}
+						category={category}
+						needed={needed}
+						show={editing}
+						handleEditingOk={handleEditingOk}
+						handleEditingCancel={handleEditingCancel}
+						categories={categories}
+					/>
+				)}
 			</tr>
 		);
 	}

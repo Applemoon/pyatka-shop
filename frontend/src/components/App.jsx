@@ -3,13 +3,11 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import Error from './Error.jsx';
-import ModeSelector from './ModeSelector.jsx';
-import TableContainer from '../containers/TableContainer.jsx';
 import AddItemForm from './AddItemForm.jsx';
 import Actions from '../actions/Actions';
-import OfflineWarning from '../components/OfflineWarning.jsx';
-import MobileComponent from '../components/MobileComponent.jsx';
-import DesktopComponent from '../components/DesktopComponent.jsx';
+import OfflineWarning from './OfflineWarning.jsx';
+import MobileComponent from './MobileComponent.jsx';
+import DesktopComponent from './DesktopComponent.jsx';
 
 class App extends PureComponent {
     componentDidMount() {
