@@ -4,3 +4,6 @@ psycopg2-binary
 pep8
 tblib
 coverage
+django-jenkins
+pyflakes
+pylint
