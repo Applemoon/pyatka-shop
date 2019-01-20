@@ -100,12 +100,8 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'index'
 LOGOUT_REDIRECT_URL = LOGIN_URL
 
-if os.environ.get('PYATKA_ENVIRONMENT', '') == 'unittest':
+try:
+    from .local_settings import *
+except ImportError:
     SECRET_KEY = 'super_secret'
     DEBUG = False
-else:
-    try:
-        from .local_settings import *
-    except ImportError:
-        pass
-
