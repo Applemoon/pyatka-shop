@@ -9,27 +9,19 @@ node {
         }
     }
 
-    // The stage below is attempting to get the latest version of our application code.
-    // Since this is a multi-branch project the 'checkout scm' command is used. If you're working with a standard
-    // pipeline project then you can replace this with the regular 'git url:' pipeline command.
-    // The 'checkout scm' command will automatically pull down the code from the appropriate branch that triggered this build.
     stage ("Get Latest Code") {
         checkout scm
     }
 
     stage ("Install Application Dependencies") {
         sh '''
-            source env/bin/activate
-            pip install -r requirements.txt
-            deactivate
+            ./env/bin/pip install -r requirements.txt
            '''
     }
 
     stage ("Collect Static files") {
         sh '''
-            source env/bin/activate
-            python manage.py collectstatic --noinput
-            deactivate
+            ./env/bin/python manage.py collectstatic --noinput
            '''
     }
 
@@ -37,9 +29,7 @@ node {
         def testsError = null
         try {
             sh '''
-                source env/bin/activate
-                python manage.py jenkins
-                deactivate
+                ./env/bin/python manage.py jenkins
                '''
         }
         catch(err) {
