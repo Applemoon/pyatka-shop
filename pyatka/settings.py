@@ -104,4 +104,8 @@ if os.environ.get('PYATKA_ENVIRONMENT', '') == 'unittest':
     SECRET_KEY = 'super_secret'
     DEBUG = False
 else:
-    from .local_settings import *
+    try:
+        from .local_settings import *
+    except ImportError:
+        pass
+
