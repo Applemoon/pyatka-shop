@@ -47,29 +47,46 @@ class Item extends PureComponent {
 
 	handleNameClick = () => {
 		const {
-			mode,
 			id,
 			needed,
-			bought,
 			setNeeded,
 			setNotNeeded,
-			setBought,
+		} = this.props;
+		!needed
+			? setNeeded(id)
+			: setNotNeeded(id)
+	};
+
+	handleMinusClick = () => {
+		const {
+			id,
+			bought,
+			setBought, 
 			setNotBought,
 		} = this.props;
-		mode === 1
-			? !needed
-				? setNeeded(id)
-				: setNotNeeded(id)
-			: !bought
+		!bought
 			? setBought(id)
-			: setNotBought(id);
-	};
+			: setNotBought(id)
+	}
+
+	handleImportantClick = () => {
+        const {
+			id,
+			important,
+			setImportant,
+			setNotImportant,
+		} = this.props;
+		!important
+			? setImportant(id)
+			: setNotImportant(id)
+	}
 
 	render() {
 		const {
 			name,
 			needed,
 			bought,
+			important,
 			id,
 			category,
 			categories,
@@ -77,7 +94,15 @@ class Item extends PureComponent {
 			remove,
 			setNotNeeded,
 		} = this.props;
-		const { style, editStart, handleEditingOk, handleEditingCancel, handleNameClick } = this;
+		const {
+		    style,
+		    editStart,
+		    handleEditingOk,
+		    handleEditingCancel,
+		    handleNameClick,
+		    handleMinusClick,
+		    handleImportantClick,
+		} = this;
 		const editing = this.state.editing;
 
 		const nameEl =
@@ -91,6 +116,8 @@ class Item extends PureComponent {
 				name
 			);
 
+		const minusBtnName = bought ? "+" : "-";
+
 		return (
 			<tr className={category + (mode === 2 && bought ? ' bought' : '')}>
 				<td style={{ ...style }} onClick={handleNameClick}>
@@ -101,6 +128,9 @@ class Item extends PureComponent {
 						<Button onClick={editStart}>✎</Button>
 					</td>
 				) : null}
+                <td>
+                    <Button bsStyle={important ? "warning" : "default"} onClick={handleImportantClick}>!</Button>
+                </td>
 				{mode === 1 ? (
 					<td>
 						<Button bsStyle="warning" onClick={() => remove(id)}>
@@ -110,8 +140,8 @@ class Item extends PureComponent {
 				) : null}
 				{mode === 2 ? (
 					<td>
-						<Button bsStyle="warning" onClick={() => setNotNeeded(id)}>
-							-
+						<Button bsStyle="warning" onClick={handleMinusClick}>
+							{minusBtnName}
 						</Button>
 					</td>
 				) : null}
@@ -136,6 +166,7 @@ Item.propTypes = {
 	name: PropTypes.string.isRequired,
 	bought: PropTypes.bool.isRequired,
 	needed: PropTypes.bool.isRequired,
+	important: PropTypes.bool.isRequired,
 	id: PropTypes.number.isRequired,
 	category: PropTypes.string.isRequired,
 	mode: PropTypes.number.isRequired,
@@ -143,6 +174,8 @@ Item.propTypes = {
 	setNotNeeded: PropTypes.func.isRequired,
 	setBought: PropTypes.func.isRequired,
 	setNotBought: PropTypes.func.isRequired,
+	setImportant: PropTypes.func.isRequired,
+	setNotImportant: PropTypes.func.isRequired,
 	remove: PropTypes.func.isRequired,
 	edit: PropTypes.func.isRequired,
 	categories: PropTypes.arrayOf(

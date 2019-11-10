@@ -11,6 +11,7 @@ default_item = {
     'needed': False,
     'bought': False,
     'category': 'other',
+    'important': False,
 }
 test_user = {
     'username': 'john',
@@ -32,12 +33,14 @@ def getCategory():
 def createItem(
     name,
     needed=default_item['needed'],
-    bought=default_item['bought']
+    bought=default_item['bought'],
+    important=default_item['important'],
 ):
     return Item.objects.create(
         name=name,
         needed=needed,
         bought=bought,
+        important=important,
         category=getCategory()
     )
 
@@ -109,6 +112,7 @@ class ItemsGetTests(APITestCase):
             self.assertEqual(item.name, resp_item['name'])
             self.assertEqual(item.needed, resp_item['needed'])
             self.assertEqual(item.bought, resp_item['bought'])
+            self.assertEqual(item.bought, resp_item['important'])
 
     def test_items_get_not_logged_in(self):
         response = self.client.get(reverse('item-list'))
@@ -139,6 +143,7 @@ class ItemsPostTests(APITestCase):
         self.assertEqual(response_dict['name'], name)
         self.assertEqual(response_dict['needed'], default_item['needed'])
         self.assertEqual(response_dict['bought'], default_item['bought'])
+        self.assertEqual(response_dict['important'], default_item['important'])
         self.assertEqual(response_dict['category'], default_item['category'])
         self.assertTrue('id' in response_dict)
         self.assertEqual(Item.objects.count(), init_items_count + 1)
@@ -156,6 +161,7 @@ class ItemsPostTests(APITestCase):
         self.assertEqual(response_dict['name'], name)
         self.assertEqual(response_dict['needed'], default_item['needed'])
         self.assertEqual(response_dict['bought'], default_item['bought'])
+        self.assertEqual(response_dict['important'], default_item['important'])
         self.assertEqual(response_dict['category'], category_2.name)
         self.assertTrue('id' in response_dict)
         self.assertEqual(Item.objects.count(), init_items_count + 1)
@@ -173,6 +179,7 @@ class ItemsPostTests(APITestCase):
         self.assertEqual(response_dict['name'], name)
         self.assertTrue(response_dict['needed'])
         self.assertEqual(response_dict['bought'], default_item['bought'])
+        self.assertEqual(response_dict['important'], default_item['important'])
         self.assertEqual(response_dict['category'], category_2.name)
         self.assertTrue('id' in response_dict)
         self.assertEqual(Item.objects.count(), init_items_count + 1)
@@ -190,6 +197,7 @@ class ItemsPostTests(APITestCase):
         self.assertEqual(response_dict['name'], name)
         self.assertFalse(response_dict['needed'])
         self.assertEqual(response_dict['bought'], default_item['bought'])
+        self.assertEqual(response_dict['important'], default_item['important'])
         self.assertEqual(response_dict['category'], category_2.name)
         self.assertTrue('id' in response_dict)
         self.assertEqual(Item.objects.count(), init_items_count + 1)
@@ -204,6 +212,7 @@ class ItemsPostTests(APITestCase):
         self.assertEqual(response_dict['name'], name)
         self.assertEqual(response_dict['needed'], True)
         self.assertEqual(response_dict['bought'], default_item['bought'])
+        self.assertEqual(response_dict['important'], default_item['important'])
         self.assertEqual(response_dict['category'], default_item['category'])
         self.assertTrue('id' in response_dict)
         self.assertEqual(Item.objects.count(), init_items_count + 1)
@@ -218,6 +227,7 @@ class ItemsPostTests(APITestCase):
         self.assertEqual(response_dict['name'], name)
         self.assertEqual(response_dict['needed'], False)
         self.assertEqual(response_dict['bought'], default_item['bought'])
+        self.assertEqual(response_dict['important'], default_item['important'])
         self.assertEqual(response_dict['category'], default_item['category'])
         self.assertTrue('id' in response_dict)
         self.assertEqual(Item.objects.count(), init_items_count + 1)
@@ -231,6 +241,7 @@ class ItemsPostTests(APITestCase):
         self.assertEqual(response_dict['name'], default_item['name'])
         self.assertEqual(response_dict['needed'], default_item['needed'])
         self.assertEqual(response_dict['bought'], default_item['bought'])
+        self.assertEqual(response_dict['important'], default_item['important'])
         self.assertEqual(response_dict['category'], default_item['category'])
         self.assertTrue('id' in response_dict)
         self.assertEqual(Item.objects.count(), init_items_count + 1)
@@ -255,9 +266,14 @@ class ItemsPostTests(APITestCase):
         data = {'name': name}
         init_items_count = Item.objects.count()
 
-        response = self.client.post(reverse('item-list'), data)
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(Item.objects.count(), init_items_count)
+        response_dict = self.call_items_post(data)
+        self.assertEqual(response_dict['name'], name)
+        self.assertEqual(response_dict['needed'], True)
+        self.assertEqual(response_dict['bought'], default_item['bought'])
+        self.assertEqual(response_dict['important'], default_item['important'])
+        self.assertEqual(response_dict['category'], default_item['category'])
+        self.assertTrue('id' in response_dict)
+        self.assertEqual(Item.objects.count(), init_items_count + 1)
 
     def test_create_item_with_wrong_category(self):
         self.client.login(**test_user)
@@ -542,6 +558,106 @@ class SetAllNotBoughtTests(APITestCase):
         self.assertEqual(response.status_code, 405)
 
 
+class SetImportantTests(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        User.objects.create_user(**test_user)
+
+    def call_set_important(self, itemId):
+        self.client.login(**test_user)
+        response = self.client.patch(
+            reverse('item-detail', args=[itemId]),
+            data={'important': True}
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_set_important_default(self):
+        item = createItem('test')
+
+        self.call_set_important(item.id)
+        self.assertTrue(Item.objects.get(pk=item.id).important)
+
+    def test_set_important_not_important(self):
+        item = createItem('test', important=False)
+
+        self.call_set_important(item.id)
+        self.assertTrue(Item.objects.get(pk=item.id).important)
+
+    def test_set_important_important(self):
+        item = createItem('test', important=True)
+
+        self.call_set_important(item.id)
+        self.assertTrue(Item.objects.get(pk=item.id).important)
+
+    def test_set_important_not_logged_in(self):
+        item = createItem('test')
+
+        response = self.client.patch(
+            reverse('item-detail', args=[item.id]),
+            data={'important': True}
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(item.bought, default_item['important'])
+
+    def test_set_important_not_existing_item(self):
+        self.client.login(**test_user)
+        response = self.client.patch(
+            reverse('item-detail', args=[0]),
+            data={'important': True}
+        )
+        self.assertEqual(response.status_code, 404)
+
+
+class SetNotImportantTests(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        User.objects.create_user(**test_user)
+
+    def call_set_not_important(self, itemId):
+        self.client.login(**test_user)
+        response = self.client.patch(
+            reverse('item-detail', args=[itemId]),
+            data={'important': False}
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_set_not_important_default(self):
+        item = createItem('test')
+
+        self.call_set_not_important(item.id)
+        self.assertFalse(Item.objects.get(pk=item.id).important)
+
+    def test_set_not_bought_not_bought(self):
+        item = createItem('test', important=False)
+
+        self.call_set_not_important(item.id)
+        self.assertFalse(Item.objects.get(pk=item.id).important)
+
+    def test_set_not_important_important(self):
+        item = createItem('test', important=True)
+
+        self.call_set_not_important(item.id)
+        self.assertFalse(Item.objects.get(pk=item.id).important)
+
+    def test_set_not_important_not_logged_in(self):
+        item = createItem('test')
+
+        response = self.client.patch(
+            reverse('item-detail', args=[item.id]),
+            data={'important': False}
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(item.bought, default_item['important'])
+
+    def test_set_not_important_not_existing_item(self):
+        self.client.login(**test_user)
+        response = self.client.patch(
+            reverse('item-detail', args=[0]),
+            data={'important': False}
+        )
+        self.assertEqual(response.status_code, 404)
+
+
 class RemoveTests(APITestCase):
     @classmethod
     def setUpTestData(cls):
@@ -639,6 +755,7 @@ class RenameTests(APITestCase):
         self.assertEqual(item.name, new_name)
         self.assertEqual(item.needed, default_item['needed'])
         self.assertEqual(item.bought, default_item['bought'])
+        self.assertEqual(item.important, default_item['important'])
         self.assertEqual(item.category.name, default_item['category'])
 
     def test_rename_needed(self):
@@ -650,6 +767,7 @@ class RenameTests(APITestCase):
         self.assertEqual(item.name, new_name)
         self.assertTrue(item.needed)
         self.assertEqual(item.bought, default_item['bought'])
+        self.assertEqual(item.important, default_item['important'])
         self.assertEqual(item.category.name, default_item['category'])
 
     def test_rename_not_needed(self):
@@ -661,6 +779,7 @@ class RenameTests(APITestCase):
         self.assertEqual(item.name, new_name)
         self.assertFalse(item.needed)
         self.assertEqual(item.bought, default_item['bought'])
+        self.assertEqual(item.important, default_item['important'])
         self.assertEqual(item.category.name, default_item['category'])
 
     def test_rename_bought(self):
@@ -672,6 +791,7 @@ class RenameTests(APITestCase):
         self.assertEqual(item.name, new_name)
         self.assertEqual(item.needed, default_item['needed'])
         self.assertTrue(item.bought)
+        self.assertEqual(item.important, default_item['important'])
         self.assertEqual(item.category.name, default_item['category'])
 
     def test_rename_not_bought(self):
@@ -683,6 +803,31 @@ class RenameTests(APITestCase):
         self.assertEqual(item.name, new_name)
         self.assertEqual(item.needed, default_item['needed'])
         self.assertFalse(item.bought)
+        self.assertEqual(item.important, default_item['important'])
+        self.assertEqual(item.category.name, default_item['category'])
+
+    def test_rename_important(self):
+        item = createItem('test', important=True)
+        new_name = 'test2'
+
+        self.call_rename(item.id, new_name)
+        item = Item.objects.get(pk=item.id)
+        self.assertEqual(item.name, new_name)
+        self.assertEqual(item.needed, default_item['needed'])
+        self.assertEqual(item.bought, default_item['bought'])
+        self.assertTrue(item.important)
+        self.assertEqual(item.category.name, default_item['category'])
+
+    def test_rename_not_important(self):
+        item = createItem('test', important=False)
+        new_name = 'test2'
+
+        self.call_rename(item.id, new_name)
+        item = Item.objects.get(pk=item.id)
+        self.assertEqual(item.name, new_name)
+        self.assertEqual(item.needed, default_item['needed'])
+        self.assertEqual(item.bought, default_item['bought'])
+        self.assertFalse(item.important)
         self.assertEqual(item.category.name, default_item['category'])
 
     def test_rename_item_with_empty_name(self):
@@ -694,6 +839,7 @@ class RenameTests(APITestCase):
         self.assertEqual(item.name, new_name)
         self.assertEqual(item.needed, default_item['needed'])
         self.assertEqual(item.bought, default_item['bought'])
+        self.assertEqual(item.important, default_item['important'])
         self.assertEqual(item.category.name, default_item['category'])
 
     def test_rename_to_empty_name(self):
@@ -705,6 +851,7 @@ class RenameTests(APITestCase):
         self.assertEqual(item.name, new_name)
         self.assertEqual(item.needed, default_item['needed'])
         self.assertEqual(item.bought, default_item['bought'])
+        self.assertEqual(item.important, default_item['important'])
         self.assertEqual(item.category.name, default_item['category'])
 
     def test_rename_without_name_param(self):
@@ -718,6 +865,7 @@ class RenameTests(APITestCase):
         self.assertEqual(item.name, name)
         self.assertEqual(item.needed, default_item['needed'])
         self.assertEqual(item.bought, default_item['bought'])
+        self.assertEqual(item.important, default_item['important'])
         self.assertEqual(item.category.name, default_item['category'])
 
     def test_rename_not_logged_in(self):
@@ -768,6 +916,7 @@ class ChangeCategoryTests(APITestCase):
         self.assertEqual(item.name, name)
         self.assertEqual(item.needed, default_item['needed'])
         self.assertEqual(item.bought, default_item['bought'])
+        self.assertEqual(item.important, default_item['important'])
 
     def test_change_category_needed(self):
         name = 'test'
@@ -779,6 +928,7 @@ class ChangeCategoryTests(APITestCase):
         self.assertEqual(item.name, name)
         self.assertTrue(item.needed)
         self.assertEqual(item.bought, default_item['bought'])
+        self.assertEqual(item.important, default_item['important'])
 
     def test_change_category_not_needed(self):
         name = 'test'
@@ -790,6 +940,7 @@ class ChangeCategoryTests(APITestCase):
         self.assertEqual(item.name, name)
         self.assertFalse(item.needed)
         self.assertEqual(item.bought, default_item['bought'])
+        self.assertEqual(item.important, default_item['important'])
 
     def test_change_category_bought(self):
         name = 'test'
@@ -801,6 +952,7 @@ class ChangeCategoryTests(APITestCase):
         self.assertEqual(item.name, name)
         self.assertEqual(item.needed, default_item['needed'])
         self.assertTrue(item.bought)
+        self.assertEqual(item.important, default_item['important'])
 
     def test_change_category_not_bought(self):
         name = 'test'
@@ -812,6 +964,31 @@ class ChangeCategoryTests(APITestCase):
         self.assertEqual(item.name, name)
         self.assertEqual(item.needed, default_item['needed'])
         self.assertFalse(item.bought)
+        self.assertEqual(item.important, default_item['important'])
+
+    def test_change_category_important(self):
+        name = 'test'
+        item = createItem(name, important=True)
+
+        self.call_change_category(item.id, self.new_category_name)
+        item = Item.objects.get(pk=item.id)
+        self.assertEqual(item.category.name, self.new_category_name)
+        self.assertEqual(item.name, name)
+        self.assertEqual(item.needed, default_item['needed'])
+        self.assertEqual(item.bought, default_item['bought'])
+        self.assertTrue(item.important)
+
+    def test_change_category_not_important(self):
+        name = 'test'
+        item = createItem(name, important=False)
+
+        self.call_change_category(item.id, self.new_category_name)
+        item = Item.objects.get(pk=item.id)
+        self.assertEqual(item.category.name, self.new_category_name)
+        self.assertEqual(item.name, name)
+        self.assertEqual(item.needed, default_item['needed'])
+        self.assertEqual(item.bought, default_item['bought'])
+        self.assertFalse(item.important)
 
     def test_change_category_item_with_empty_name(self):
         name = ''
@@ -823,6 +1000,7 @@ class ChangeCategoryTests(APITestCase):
         self.assertEqual(item.name, name)
         self.assertEqual(item.needed, default_item['needed'])
         self.assertEqual(item.bought, default_item['bought'])
+        self.assertEqual(item.important, default_item['important'])
 
     def test_change_category_without_category_param(self):
         self.client.login(**test_user)

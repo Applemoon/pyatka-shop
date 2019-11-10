@@ -34,9 +34,10 @@ def getDefaultCategory():
 
 
 class Item(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=1000)
     needed = models.BooleanField(default=False)
     bought = models.BooleanField(default=False)
+    important = models.BooleanField(default=False)
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_DEFAULT,

@@ -11,6 +11,8 @@ const TableComponent = ({
 	setNotNeeded,
 	setBought,
 	setNotBought,
+	setImportant,
+	setNotImportant,
 	remove,
 	edit,
 	categories,
@@ -29,6 +31,8 @@ const TableComponent = ({
 						setNotNeeded={setNotNeeded}
 						setBought={setBought}
 						setNotBought={setNotBought}
+						setImportant={setImportant}
+						setNotImportant={setNotImportant}
 						remove={remove}
 						edit={edit}
 						categories={categories}
@@ -51,6 +55,8 @@ TableComponent.propTypes = {
 	setNotNeeded: PropTypes.func.isRequired,
 	setBought: PropTypes.func.isRequired,
 	setNotBought: PropTypes.func.isRequired,
+	setImportant: PropTypes.func.isRequired,
+	setNotImportant: PropTypes.func.isRequired,
 	remove: PropTypes.func.isRequired,
 	edit: PropTypes.func.isRequired,
 	categories: PropTypes.arrayOf(

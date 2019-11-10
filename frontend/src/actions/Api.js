@@ -6,7 +6,7 @@ axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded
 
 function getURIParams(params) {
 	return Object.keys(params).reduce((prev, cur) => {
-		return prev + (prev ? '&' : '') + `${cur}=${params[cur]}`;
+		return prev + (prev ? '&' : '') + `${cur}=${encodeURIComponent(params[cur])}`;
 	}, '');
 }
 
@@ -36,6 +36,14 @@ class Api {
 
 	static setNotBought(id) {
 		return axios.patch(`/ajax/items/${id}`, getURIParams({ bought: false }));
+	}
+
+	static setImportant(id) {
+		return axios.patch(`/ajax/items/${id}`, getURIParams({ important: true }));
+	}
+
+	static setNotImportant(id) {
+		return axios.patch(`/ajax/items/${id}`, getURIParams({ important: false }));
 	}
 
 	static remove(id) {

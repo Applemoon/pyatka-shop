@@ -8,6 +8,9 @@ export const SET_NOT_NEEDED = 'SET_NOT_NEEDED';
 export const SET_BOUGHT = 'SET_BOUGHT';
 export const SET_NOT_BOUGHT = 'SET_NOT_BOUGHT';
 
+export const SET_IMPORTANT = 'SET_IMPORTANT';
+export const SET_NOT_IMPORTANT = 'SET_NOT_IMPORTANT';
+
 export const ADD_ITEM = 'ADD_ITEM';
 export const REMOVE = 'REMOVE';
 
@@ -91,6 +94,32 @@ class Actions {
 			!err.response
 				? dispatch({ type: NOW_OFFLINE })
 				: dispatch({ type: REQUEST_FAILED, method: 'setNotBought', message: err });
+		});
+	};
+
+	static setImportant = id => dispatch => {
+		dispatch({
+			type: SET_IMPORTANT,
+			id: id,
+		});
+
+		Api.setImportant(id).catch(err => {
+			!err.response
+				? dispatch({ type: NOW_OFFLINE })
+				: dispatch({ type: REQUEST_FAILED, method: 'setImportant', message: err });
+		});
+	};
+
+	static setNotImportant = id => dispatch => {
+		dispatch({
+			type: SET_NOT_IMPORTANT,
+			id: id,
+		});
+
+		Api.setNotImportant(id).catch(err => {
+			!err.response
+				? dispatch({ type: NOW_OFFLINE })
+				: dispatch({ type: REQUEST_FAILED, method: 'setNotImportant', message: err });
 		});
 	};
 

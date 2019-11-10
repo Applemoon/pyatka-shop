@@ -6,7 +6,7 @@ class ItemSerializer(serializers.ModelSerializer):
     name = serializers.CharField(
         required=False,
         allow_blank=True,
-        max_length=100
+        max_length=1000
     )
     category = serializers.CharField(source='category.name', required=False)
 
@@ -14,10 +14,11 @@ class ItemSerializer(serializers.ModelSerializer):
         model = Item
         fields = '__all__'
 
+    '''
+    Try to find category instance by name
+    '''
     def _getCategory(self, validated_data):
-        '''
-        Try to find category instance by name
-        '''
+
         try:
             return Category.objects.get(
                 name=validated_data['category']['name']
