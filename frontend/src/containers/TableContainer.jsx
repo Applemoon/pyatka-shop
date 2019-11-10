@@ -6,22 +6,27 @@ import TableComponent from '../components/TableComponent.jsx';
 import Actions from '../actions/Actions';
 
 class TableContainer extends PureComponent {
-	sortByCategory = (itemA, itemB) => {
-		return (
-			this.props.categories.find(category => category.name === itemA.category).position -
-			this.props.categories.find(category => category.name === itemB.category).position
-		);
+	customSorting = (itemA, itemB) => {
+	    var diff =
+	        this.props.categories.find(category => category.name === itemA.category).position -
+			this.props.categories.find(category => category.name === itemB.category).position;
+		if (diff !== 0) return diff;
+
+        diff = (itemB.needed ? 1 : 0) - (itemA.needed ? 1 : 0)
+        if (diff !== 0) return diff;
+
+        return (itemB.important ? 1 : 0) - (itemA.important ? 1 : 0)
 	};
 
 	getItems() {
 		const { items, mode } = this.props;
 
-		if (mode === 1) return items.sort(this.sortByCategory);
+		if (mode === 1) return items.sort(this.customSorting);
 
 		const notBought = items
 			.filter(item => item.needed && !item.bought)
-			.sort(this.sortByCategory);
-		const bought = items.filter(item => item.needed && item.bought).sort(this.sortByCategory);
+			.sort(this.customSorting);
+		const bought = items.filter(item => item.needed && item.bought).sort(this.customSorting);
 		return notBought.concat(bought);
 	}
 
@@ -43,6 +48,8 @@ const mapDispatchToProps = dispatch => ({
 	setNotNeeded: bindActionCreators(Actions.setNotNeeded, dispatch),
 	setBought: bindActionCreators(Actions.setBought, dispatch),
 	setNotBought: bindActionCreators(Actions.setNotBought, dispatch),
+	setImportant: bindActionCreators(Actions.setImportant, dispatch),
+	setNotImportant: bindActionCreators(Actions.setNotImportant, dispatch),
 	remove: bindActionCreators(Actions.remove, dispatch),
 	edit: bindActionCreators(Actions.edit, dispatch),
 });

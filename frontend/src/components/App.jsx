@@ -17,6 +17,7 @@ class App extends PureComponent {
     render() {
         const { items, error, mode, offline, loading, selectMode } = this.props;
         const isMobile = window.innerWidth <= 600;
+        const countToBuy = items.filter(item => item.needed && !item.bought).length;
 
         return error ? (
             <Error />
@@ -26,9 +27,9 @@ class App extends PureComponent {
             <div>
                 {offline && <OfflineWarning />}
                 {isMobile ? (
-                    <MobileComponent mode={mode} selectMode={selectMode} />
+                    <MobileComponent mode={mode} selectMode={selectMode} countToBuy={countToBuy}/>
                 ) : (
-                    <DesktopComponent />
+                    <DesktopComponent countToBuy={countToBuy}/>
                 )}
                 <AddItemForm items={items} forceNeeded={mode === 2} />
             </div>

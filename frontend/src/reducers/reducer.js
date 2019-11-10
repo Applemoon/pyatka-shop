@@ -4,6 +4,8 @@ import {
 	SET_NOT_NEEDED,
 	SET_BOUGHT,
 	SET_NOT_BOUGHT,
+	SET_IMPORTANT,
+	SET_NOT_IMPORTANT,
 	ADD_ITEM,
 	REMOVE,
 	EDIT_ITEM,
@@ -73,12 +75,29 @@ const reducer = (state = initialState, action) => {
 				}),
 			});
 		}
+		case SET_IMPORTANT: {
+			return Object.assign({}, state, {
+				items: state.items.map(item => {
+					if (item.id == action.id) item.important = true;
+					return item;
+				}),
+			});
+		}
+		case SET_NOT_IMPORTANT: {
+			return Object.assign({}, state, {
+				items: state.items.map(item => {
+					if (item.id == action.id) item.important = false;
+					return item;
+				}),
+			});
+		}
 		case ADD_ITEM: {
 			const newItem = {
 				name: action.name,
 				bought: action.bought,
 				id: action.id,
 				needed: action.needed,
+				important: false,
 				category: action.category,
 			};
 			return Object.assign({}, state, {
@@ -137,6 +156,7 @@ const reducer = (state = initialState, action) => {
 				bought: action.bought,
 				id: -1,
 				needed: action.needed,
+				important: false,
 			};
 			return Object.assign({}, state, {
 				items: state.items.concat(newItem),

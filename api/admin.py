@@ -8,8 +8,8 @@ class ItemInline(admin.TabularInline):
 
 
 class ItemAdmin(admin.ModelAdmin):
-    list_filter = ['needed', 'bought', 'category']
-    list_display = ('name', 'needed', 'bought', 'category')
+    list_filter = ['needed', 'bought', 'category', 'important']
+    list_display = ('name', 'needed', 'bought', 'category', 'important')
     search_fields = ['name']
 
 
